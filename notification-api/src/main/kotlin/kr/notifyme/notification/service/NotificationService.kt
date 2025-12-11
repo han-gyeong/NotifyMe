@@ -7,6 +7,8 @@ import kr.notifyme.notification.domain.ChannelType
 import kr.notifyme.notification.domain.NotificationStatus
 import kr.notifyme.notification.entity.Notification
 import kr.notifyme.notification.repository.NotificationRepository
+import kr.notifyme.notification.support.OffsetLimit
+import org.springframework.data.domain.Slice
 import org.springframework.stereotype.Service
 
 @Service
@@ -36,8 +38,8 @@ class NotificationService(
         return found
     }
 
-    fun getAllNotificationByUserId(userId: String): List<Notification> {
-        return notificationRepository.findAllByCreatedBy(createdBy = userId)
+    fun getAllNotificationByUserId(userId: String, offsetLimit: OffsetLimit): Slice<Notification> {
+        return notificationRepository.findAllByCreatedBy(createdBy = userId, pageable = offsetLimit.toPageable())
     }
 
     @Transactional
