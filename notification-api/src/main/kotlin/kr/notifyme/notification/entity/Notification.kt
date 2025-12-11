@@ -1,5 +1,6 @@
 package kr.notifyme.notification.entity
 
+import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
@@ -9,6 +10,7 @@ import kr.notifyme.notification.domain.ChannelType
 import kr.notifyme.notification.domain.NotificationStatus
 import java.time.LocalDateTime
 
+@Entity
 class Notification(
 
     @Id
