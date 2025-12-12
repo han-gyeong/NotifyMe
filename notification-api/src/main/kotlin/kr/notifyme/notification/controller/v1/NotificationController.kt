@@ -1,6 +1,7 @@
 package kr.notifyme.notification.controller.v1
 
 import jakarta.validation.Valid
+import kr.notifyme.notification.controller.v1.request.ModifyNotificationRequest
 import kr.notifyme.notification.controller.v1.request.NotificationRequest
 import kr.notifyme.notification.controller.v1.response.NotificationResponse
 import kr.notifyme.notification.service.NotificationService
@@ -48,6 +49,18 @@ class NotificationController(
         @Valid @RequestBody notificationRequest: NotificationRequest
     ) : ApiResponse<NotificationResponse> {
         var notification = notificationService.scheduleNotification(userId, notificationRequest)
+            .let { NotificationResponse.of(it) }
+
+        return ApiResponse.success(notification)
+    }
+
+    @PatchMapping("/{notificationId}")
+    fun modifyNotification(
+        @CurrentUserId userId: String,
+        @PathVariable notificationId: Long,
+        @Valid @RequestBody modifyNotificationRequest: ModifyNotificationRequest,
+    ) : ApiResponse<NotificationResponse> {
+        val notification = notificationService.modifyNotification(userId, notificationId, modifyNotificationRequest)
             .let { NotificationResponse.of(it) }
 
         return ApiResponse.success(notification)

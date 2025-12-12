@@ -20,9 +20,9 @@ class Notification(
     @Enumerated(EnumType.STRING)
     val channelType: ChannelType,
 
-    val message: String,
+    var message: String,
 
-    val notifyAt: LocalDateTime,
+    var notifyAt: LocalDateTime,
 
     @Enumerated(EnumType.STRING)
     var status: NotificationStatus,
@@ -34,6 +34,11 @@ class Notification(
 
     fun cancel() {
         status = NotificationStatus.CANCELLED
+    }
+
+    fun modify(message: String, notifyAt: LocalDateTime) {
+        this.message = message
+        this.notifyAt = notifyAt
     }
 
 
