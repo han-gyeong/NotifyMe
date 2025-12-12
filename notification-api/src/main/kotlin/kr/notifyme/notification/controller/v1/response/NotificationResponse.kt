@@ -5,7 +5,7 @@ import kr.notifyme.notification.entity.Notification
 import java.time.LocalDateTime
 
 data class NotificationResponse(
-    val id: String,
+    val id: Long,
     val channel: ChannelType,
     val message: String,
     val notifyAt: LocalDateTime

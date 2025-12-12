@@ -33,7 +33,7 @@ class NotificationController(
     @GetMapping("/{notificationId}")
     fun getNotificationById(
         @CurrentUserId userId: String,
-        @PathVariable notificationId: String
+        @PathVariable notificationId: Long
     ) : ApiResponse<NotificationResponse> {
         var notification = notificationService.getNotificationById(userId, notificationId)
             .let { NotificationResponse.of(it) }
@@ -55,7 +55,7 @@ class NotificationController(
     @PatchMapping("/{notificationId}/cancel")
     fun cancelNotification(
         @CurrentUserId userId: String,
-        @PathVariable notificationId: String
+        @PathVariable notificationId: Long
     ) : ApiResponse<NotificationResponse> {
         val notification = notificationService.cancelNotification(userId, notificationId)
             .let { NotificationResponse.of(it) }

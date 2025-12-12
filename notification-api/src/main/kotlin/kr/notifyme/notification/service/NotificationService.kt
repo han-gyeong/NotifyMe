@@ -31,7 +31,7 @@ class NotificationService(
         return notification
     }
 
-    fun getNotificationById(userId: String, notificationId: String): Notification {
+    fun getNotificationById(userId: String, notificationId: Long): Notification {
         val found = notificationRepository.findByCreatedByAndId(userId, notificationId)
             ?: throw IllegalArgumentException("No notification with that id $notificationId found")
 
@@ -43,7 +43,7 @@ class NotificationService(
     }
 
     @Transactional
-    fun cancelNotification(userId: String, notificationId: String): Notification {
+    fun cancelNotification(userId: String, notificationId: Long): Notification {
         return notificationRepository.findByCreatedByAndId(userId, notificationId)
             ?.takeIf { it.canCancel() }
             ?.also { it.cancel() }

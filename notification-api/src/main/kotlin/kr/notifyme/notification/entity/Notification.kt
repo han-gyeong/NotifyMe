@@ -14,20 +14,20 @@ import java.time.LocalDateTime
 class Notification(
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    val id: String = "",
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0,
 
     @Enumerated(EnumType.STRING)
-    var channelType: ChannelType,
+    val channelType: ChannelType,
 
-    var message: String,
+    val message: String,
 
-    var notifyAt: LocalDateTime,
+    val notifyAt: LocalDateTime,
 
     @Enumerated(EnumType.STRING)
     var status: NotificationStatus,
 
-    var createdBy: String = ""
+    val createdBy: String
 
 ) {
     fun canCancel(): Boolean = status == NotificationStatus.WAITING
