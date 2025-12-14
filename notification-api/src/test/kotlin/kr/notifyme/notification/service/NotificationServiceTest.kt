@@ -152,6 +152,17 @@ class NotificationServiceTest(
         assertThatThrownBy {
             notificationService.cancelNotification(userId = "user1", notificationId = saved.id)
         }.isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessageContaining("Cannot cancel")
+    }
+
+    @Test
+    fun `존재하지 않는 알람을 취소시 오류가 발생한다`() {
+        // given
+
+        // when + then
+        assertThatThrownBy {
+            notificationService.cancelNotification("user1", Long.MAX_VALUE)
+        }.isInstanceOf(IllegalArgumentException::class.java)
             .hasMessageContaining("No notification")
     }
 }
