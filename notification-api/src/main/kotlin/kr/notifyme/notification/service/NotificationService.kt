@@ -55,9 +55,13 @@ class NotificationService(
 
     @Transactional
     fun cancelNotification(userId: String, notificationId: Long): Notification {
-        return notificationRepository.findByCreatedByAndId(userId, notificationId)
-            ?.takeIf { it.canCancel() }
-            ?.also { it.cancel() }
-            ?: throw IllegalArgumentException("No notification with that id $notificationId found")
+        val found = notificationRepository.findByCreatedByAndId(userId, notificationId)
+            ?: throw IllegalArgumentException("No notification with id $notificationId found")
+
+        require(found.canCancel()) { "Cannot cancel notification with id $notificationId" }
+
+        found.cancel()
+
+        return found
     }
 }
