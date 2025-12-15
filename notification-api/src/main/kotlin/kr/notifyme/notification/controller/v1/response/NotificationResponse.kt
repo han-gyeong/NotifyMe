@@ -1,6 +1,8 @@
 package kr.notifyme.notification.controller.v1.response
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import kr.notifyme.notification.domain.ChannelType
+import kr.notifyme.notification.domain.NotificationStatus
 import kr.notifyme.notification.entity.Notification
 import java.time.LocalDateTime
 
@@ -8,6 +10,9 @@ data class NotificationResponse(
     val id: Long,
     val channel: ChannelType,
     val message: String,
+    val status: NotificationStatus,
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     val notifyAt: LocalDateTime
 ) {
     companion object {
@@ -16,7 +21,8 @@ data class NotificationResponse(
                 id = notification.id,
                 channel = notification.channelType,
                 message = notification.message,
-                notifyAt = notification.notifyAt
+                status = notification.status,
+                notifyAt = notification.notifyAt,
             )
         }
     }
