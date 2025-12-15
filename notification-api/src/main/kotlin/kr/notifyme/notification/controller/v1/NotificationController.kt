@@ -1,6 +1,8 @@
 package kr.notifyme.notification.controller.v1
 
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Positive
+import jakarta.validation.constraints.PositiveOrZero
 import kr.notifyme.notification.controller.v1.request.ModifyNotificationRequest
 import kr.notifyme.notification.controller.v1.request.NotificationRequest
 import kr.notifyme.notification.controller.v1.response.NotificationResponse
@@ -9,8 +11,10 @@ import kr.notifyme.notification.support.OffsetLimit
 import kr.notifyme.notification.support.auth.CurrentUserId
 import kr.notifyme.notification.support.response.ApiResponse
 import kr.notifyme.notification.support.response.PageResponse
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/notifications")
 class NotificationController(
@@ -20,8 +24,8 @@ class NotificationController(
     @GetMapping()
     fun getAllMyNotifications(
         @CurrentUserId userId: String,
-        @RequestParam offset: Int,
-        @RequestParam limit: Int) : ApiResponse<PageResponse<NotificationResponse>> {
+        @RequestParam @PositiveOrZero offset: Int,
+        @RequestParam @Positive limit: Int) : ApiResponse<PageResponse<NotificationResponse>> {
         val notifications = notificationService.getAllNotificationByUserId(userId, OffsetLimit(offset, limit))
 
         return ApiResponse.success(
@@ -48,7 +52,7 @@ class NotificationController(
         @CurrentUserId userId: String,
         @Valid @RequestBody notificationRequest: NotificationRequest
     ) : ApiResponse<NotificationResponse> {
-        var notification = notificationService.scheduleNotification(userId, notificationRequest)
+        val notification = notificationService.scheduleNotification(userId, notificationRequest)
             .let { NotificationResponse.of(it) }
 
         return ApiResponse.success(notification)
