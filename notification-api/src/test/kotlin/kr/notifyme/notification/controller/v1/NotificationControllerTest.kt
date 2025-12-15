@@ -82,6 +82,36 @@ class NotificationControllerTest(
         assertThat(captor.firstValue.offset).isEqualTo(slice.pageable.offset)
     }
 
+    @Test
+    fun `페이징 시 Offset이 0보다 작으면 Bad Request`() {
+        // given
+
+        // when + then
+        mockMvc.perform(
+            get("/api/v1/notifications")
+                .param("offset", "-1")
+                .param("limit", "10")
+        ).andExpect(status().isBadRequest)
+            .andDo(MockMvcResultHandlers.print())
+
+        verifyNoInteractions(notificationService)
+    }
+
+    @Test
+    fun `페이징 시 Limit 0이면 Bad Request`() {
+        // given
+
+        // when + then
+        mockMvc.perform(
+            get("/api/v1/notifications")
+                .param("offset", "10")
+                .param("limit", "0")
+        ).andExpect(status().isBadRequest)
+            .andDo(MockMvcResultHandlers.print())
+
+        verifyNoInteractions(notificationService)
+    }
+
     /** 알람 개별 조회 **/
     @Test
     fun `알람 ID로 내가 등록한 알람을 가져올 수 있다`() {
