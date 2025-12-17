@@ -2,5 +2,6 @@ rootProject.name = "notifyme"
 
 include(
     "notification-core",
-    "notification-api"
+    "notification-api",
+    "notification-scheduler"
 )
