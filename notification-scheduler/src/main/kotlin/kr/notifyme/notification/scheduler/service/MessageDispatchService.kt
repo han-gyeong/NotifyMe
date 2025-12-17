@@ -1,5 +1,6 @@
 package kr.notifyme.notification.scheduler.service
 
+import kr.notifyme.notification.scheduler.config.NotificationTopics
 import kr.notifyme.notification.scheduler.dto.SendRequest
 import kr.notifyme.notification.scheduler.repository.NotificationRepository
 import org.slf4j.Logger
@@ -10,6 +11,7 @@ import kotlin.jvm.javaClass
 
 @Service
 class MessageDispatchService(
+    private val notificationTopics: NotificationTopics,
     private val kafkaTemplate: KafkaTemplate<String, SendRequest>,
     private val notificationRepository: NotificationRepository,
     private val messageDispatchCommandService: MessageDispatchCommandService
@@ -32,7 +34,14 @@ class MessageDispatchService(
                 message = notification.message
             )
 
-            kafkaTemplate.send("req", notification.id.toString(), request)
+            val requestTopic = notificationTopics.request[notification.channelType]
+                ?: run {
+                    log.error("Received message dispatch request for unknown channel type: ${notification.channelType}")
+                    messageDispatchCommandService.markFailed(notificationId = notification.id)
+                    return@forEach
+                }
+
+            kafkaTemplate.send(requestTopic, notification.id.toString(), request)
                 .whenComplete { result, exception ->
                     if (exception == null) {
                         messageDispatchCommandService.markEnqueued(notificationId = notification.id)

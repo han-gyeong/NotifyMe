@@ -15,10 +15,10 @@ class MessageDispatchCommandService(
     private val notificationDispatchRepository: NotificationDispatchRepository
 ) {
 
-    @Value("\${scheduler.id}")
+    @Value("\${notification.scheduler.id}")
     private lateinit var schedulerId: String
 
-    @Value("\${scheduler.lock-until-minutes}")
+    @Value("\${notification.scheduler.lock-until-minutes}")
     private lateinit var lockUntilMinutes: String
 
     @Transactional
