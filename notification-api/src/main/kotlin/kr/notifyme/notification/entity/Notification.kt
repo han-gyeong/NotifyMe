@@ -20,6 +20,8 @@ class Notification(
     @Enumerated(EnumType.STRING)
     val channelType: ChannelType,
 
+    val destination: String,
+
     var message: String,
 
     var notifyAt: LocalDateTime,

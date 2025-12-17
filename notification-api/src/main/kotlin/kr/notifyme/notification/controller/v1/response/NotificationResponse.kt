@@ -9,6 +9,7 @@ import java.time.LocalDateTime
 data class NotificationResponse(
     val id: Long,
     val channel: ChannelType,
+    val destination: String,
     val message: String,
     val status: NotificationStatus,
 
@@ -20,6 +21,7 @@ data class NotificationResponse(
             return NotificationResponse(
                 id = notification.id,
                 channel = notification.channelType,
+                destination = notification.destination,
                 message = notification.message,
                 status = notification.status,
                 notifyAt = notification.notifyAt,

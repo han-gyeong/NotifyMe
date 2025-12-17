@@ -32,6 +32,7 @@ class NotificationServiceTest(
         val userId = "user1"
         val request = NotificationRequest(
             channel = ChannelType.EMAIL,
+            destination = "hello@example.com",
             message = "HELLO WORLD",
             notifyAt = LocalDateTime.now(),
         )
@@ -45,6 +46,7 @@ class NotificationServiceTest(
 
         assertThat(found.createdBy).isEqualTo(userId)
         assertThat(found.channelType).isEqualTo(request.channel)
+        assertThat(found.destination).isEqualTo(request.destination)
         assertThat(found.message).isEqualTo(request.message)
         assertThat(found.notifyAt).isEqualTo(request.notifyAt)
 

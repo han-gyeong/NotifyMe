@@ -20,6 +20,7 @@ class NotificationService(
         val notification = notificationRepository.save(
             Notification(
                 channelType = notificationRequest.channel,
+                destination = notificationRequest.destination,
                 message = notificationRequest.message,
                 notifyAt = notificationRequest.notifyAt,
                 status = NotificationStatus.WAITING,

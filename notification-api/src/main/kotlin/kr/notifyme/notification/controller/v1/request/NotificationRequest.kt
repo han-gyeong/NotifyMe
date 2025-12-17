@@ -15,6 +15,9 @@ data class NotificationRequest(
     @field:NotBlank
     val message: String,
 
+    @field:NotBlank
+    val destination: String,
+
     @field:Future
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     val notifyAt: LocalDateTime

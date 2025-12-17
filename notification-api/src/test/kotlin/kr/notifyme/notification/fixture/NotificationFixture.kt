@@ -11,6 +11,7 @@ class NotificationFixture {
     companion object {
         fun createNotification(userId: String): Notification = Notification(
             channelType = ChannelType.EMAIL,
+            destination = "hello@example.com",
             message = "TEST" + UUID.randomUUID().toString(),
             createdBy = userId,
             notifyAt = LocalDateTime.now(),

@@ -126,6 +126,7 @@ class NotificationControllerTest(
             get("/api/v1/notifications/{notificationId}", 1)
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data.channel").value(created.channelType.toString()))
+            .andExpect(jsonPath("$.data.destination").value(created.destination))
             .andExpect(jsonPath("$.data.message").value(created.message))
             .andExpect(jsonPath("$.data.notifyAt").value(created.notifyAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
     }
@@ -134,10 +135,11 @@ class NotificationControllerTest(
     @Test
     fun `알람을 등록할 수 있다`() {
         // given
-        val request = NotificationRequest(ChannelType.EMAIL, "HELLO", LocalDateTime.now().plusHours(1))
+        val request = NotificationRequest(ChannelType.EMAIL, "HELLO", "hello@example.com",LocalDateTime.now().plusHours(1))
         val response = Notification(
             id = 0L,
             channelType = request.channel,
+            destination = "hello@example.com",
             message = request.message,
             notifyAt = request.notifyAt,
             status = NotificationStatus.WAITING,
@@ -155,6 +157,7 @@ class NotificationControllerTest(
         ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data.id").value(response.id))
             .andExpect(jsonPath("$.data.channel").value(request.channel.toString()))
+            .andExpect(jsonPath("$.data.destination").value(request.destination))
             .andExpect(jsonPath("$.data.message").value(request.message))
             .andExpect(jsonPath("$.data.notifyAt").value(request.notifyAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))))
             .andDo(MockMvcResultHandlers.print())
@@ -163,7 +166,7 @@ class NotificationControllerTest(
     @Test
     fun `과거 시간 알람을 등록하면 Bad Request`() {
         // given
-        val request = NotificationRequest(ChannelType.EMAIL, "HELLO", LocalDateTime.now().minusHours(1))
+        val request = NotificationRequest(ChannelType.EMAIL, "HELLO", "hello@example.com", LocalDateTime.now().minusHours(1))
 
         // when + then
         mockMvc.perform(
@@ -178,7 +181,7 @@ class NotificationControllerTest(
     @Test
     fun `메시지가 비어있다면 Bad Request`() {
         // given
-        val request = NotificationRequest(ChannelType.EMAIL, "", LocalDateTime.now().minusHours(1))
+        val request = NotificationRequest(ChannelType.EMAIL, "", "hello@example.com", LocalDateTime.now().minusHours(1))
 
         // when + then
         mockMvc.perform(
@@ -196,6 +199,7 @@ class NotificationControllerTest(
         val request = """
             {
                 "channel" : "HELLO",
+                "email" : "hello@example.com",
                 "message" : "HELLO",
                 "notifyAt" : "2055-10-12 09:15:30",
         """.trimIndent()
@@ -222,6 +226,7 @@ class NotificationControllerTest(
         val modified = Notification(
             id = notificationId,
             channelType = ChannelType.EMAIL,
+            destination = "hello@example.com",
             message = request.message,
             notifyAt = request.notifyAt,
             status = NotificationStatus.WAITING,
@@ -250,6 +255,7 @@ class NotificationControllerTest(
         val cancelled = Notification(
             id = notificationId,
             channelType = ChannelType.EMAIL,
+            destination = "hello@example.com",
             message = "HELLO",
             notifyAt = LocalDateTime.now().plusHours(1),
             status = NotificationStatus.CANCELLED,
