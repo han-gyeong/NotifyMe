@@ -5,6 +5,8 @@ import kr.notifyme.notification.controller.v1.request.ModifyNotificationRequest
 import kr.notifyme.notification.controller.v1.request.NotificationRequest
 import kr.notifyme.notification.domain.NotificationStatus
 import kr.notifyme.notification.entity.Notification
+import kr.notifyme.notification.entity.NotificationDispatch
+import kr.notifyme.notification.repository.NotificationDispatchRepository
 import kr.notifyme.notification.repository.NotificationRepository
 import kr.notifyme.notification.support.OffsetLimit
 import org.springframework.data.domain.Slice
@@ -12,7 +14,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class NotificationService(
-    private val notificationRepository: NotificationRepository
+    private val notificationRepository: NotificationRepository,
+    private val notificationDispatchRepository: NotificationDispatchRepository
 ) {
 
     @Transactional
@@ -25,6 +28,12 @@ class NotificationService(
                 notifyAt = notificationRequest.notifyAt,
                 status = NotificationStatus.WAITING,
                 createdBy = userId
+            )
+        )
+
+        notificationDispatchRepository.save(
+            NotificationDispatch(
+                notificationId = notification.id
             )
         )
 
