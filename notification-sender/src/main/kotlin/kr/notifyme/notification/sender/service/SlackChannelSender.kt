@@ -5,10 +5,12 @@ import kr.notifyme.notification.domain.ChannelType
 import kr.notifyme.notification.sender.dto.SendRequest
 import kr.notifyme.notification.sender.dto.SendResult
 import kr.notifyme.notification.sender.service.request.SlackWebhookRequest
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 
 @Component
+@ConditionalOnProperty(name = ["sender.type"], havingValue = "slack")
 class SlackChannelSender(
     webClientBuilder: WebClient.Builder
 ) : ChannelSender {

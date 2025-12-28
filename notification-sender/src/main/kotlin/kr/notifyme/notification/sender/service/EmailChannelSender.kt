@@ -6,11 +6,13 @@ import kr.notifyme.notification.domain.ChannelType
 import kr.notifyme.notification.sender.config.MailProperties
 import kr.notifyme.notification.sender.dto.SendRequest
 import kr.notifyme.notification.sender.dto.SendResult
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Component
 
 @Component
+@ConditionalOnProperty(name = ["sender.type"], havingValue = "email")
 class EmailChannelSender(
     private val mailSender: JavaMailSender,
     private val mailProperties: MailProperties
