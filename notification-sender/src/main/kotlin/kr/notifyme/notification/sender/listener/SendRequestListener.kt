@@ -19,12 +19,13 @@ class SendRequestListener(
 
     @KafkaListener(
         topics = ["#{notificationProperties.channels['\${sender.type}'].topicRequest}"],
-        groupId = "#{notificationProperties.channels['\${sender.type}'].groupId}"
+        groupId = "#{notificationProperties.channels['\${sender.type}'].groupId}",
+        concurrency = "#{notificationProperties.channels['\${sender.type}'].concurrency}",
     )
     @SendTo("#{notificationProperties.channels['\${sender.type}'].topicResult}")
     fun onMessage(request: SendRequest): SendResult = runBlocking{
         try {
-            val sender = senders.find { sender -> sender.canHandle(request) }
+            val sender = senders.find { it.canHandle(request) }
                 ?: throw IllegalArgumentException("No Sender found for $request")
 
             sender.send(request)
