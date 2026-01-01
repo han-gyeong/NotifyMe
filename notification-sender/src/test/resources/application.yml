@@ -10,7 +10,24 @@ slack:
 
 mail:
   from: webmaster@notifyme.kr
-  host: ${SMTP_SERVER}
-  port: 587
-  username: ${SMTP_USERNAME}
-  password: ${SMTP_PASSWORD}
+  host: localhost
+  port: 3025
+  username: notifyme@test.com
+  password: test1234
+
+sender:
+  type: ${TYPE}
+
+notification:
+  channels:
+    EMAIL:
+      topic-request: notification.email.send-request
+      topic-result: notification.email.send-result
+      group-id: email-sender-group
+      concurrency: 5
+    SLACK:
+      topic-request: notification.slack.send-request
+      topic-result: notification.slack.send-result
+      group-id: slack-sender-group
+      concurrency: 5
+

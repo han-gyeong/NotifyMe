@@ -34,7 +34,7 @@ dependencies {
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
 	testImplementation("org.springframework.kafka:spring-kafka-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
+	testImplementation("com.icegreen:greenmail-junit5:2.0.1")
 }
 
 kotlin {
