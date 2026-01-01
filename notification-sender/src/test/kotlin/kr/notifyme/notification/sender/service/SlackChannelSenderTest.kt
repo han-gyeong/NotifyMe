@@ -48,4 +48,38 @@ class SlackChannelSenderTest(
         // then
         Assertions.assertThat(result.success).isFalse
     }
+
+    @Test
+    fun `canHandle은 SLACK 타입에 대해 true를 반환한다`() {
+        // given
+        val request = SendRequest(
+            1L,
+            ChannelType.SLACK,
+            webhookUrl,
+            "message"
+        )
+
+        // when
+        val result = slackChannelSender.canHandle(request)
+
+        // then
+        Assertions.assertThat(result).isTrue
+    }
+
+    @Test
+    fun `canHandle은 SLACK 이외의 타입에 대해 false를 반환한다`() {
+        // given
+        val request = SendRequest(
+            1L,
+            ChannelType.EMAIL,
+            webhookUrl,
+            "message"
+        )
+
+        // when
+        val result = slackChannelSender.canHandle(request)
+
+        // then
+        Assertions.assertThat(result).isFalse
+    }
 }

@@ -65,4 +65,38 @@ class EmailChannelSenderTest(
         assertThat(message.allRecipients[0].toString()).isEqualTo(request.destination)
         assertThat(GreenMailUtil.getBody(message)).contains(request.message)
     }
+
+    @Test
+    fun `canHandle은 EMAIL 타입에 대해 true를 반환한다`() {
+        // given
+        val request = SendRequest(
+            1L,
+            ChannelType.EMAIL,
+            "test@test.com",
+            "message"
+        )
+
+        // when
+        val result = emailChannelSender.canHandle(request)
+
+        // then
+        assertThat(result).isTrue
+    }
+
+    @Test
+    fun `canHandle은 EMAIL 이외의 타입에 대해 false를 반환한다`() {
+        // given
+        val request = SendRequest(
+            1L,
+            ChannelType.SLACK,
+            "test@test.com",
+            "message"
+        )
+
+        // when
+        val result = emailChannelSender.canHandle(request)
+
+        // then
+        assertThat(result).isFalse
+    }
 }
