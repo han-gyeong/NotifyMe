@@ -2,13 +2,13 @@ notification:
   scheduler:
     id: 1
     lock-until-minutes: 5
-  topics:
-    request:
-      EMAIL: notification.email.send-request
-      SLACK: notification.slack.send-request
-    result:
-      EMAIL: notification.email.send-response
-      SLACK: notification.slack.send-response
+  channels:
+    EMAIL:
+      topic-request: notification.email.send-request
+      topic-result: notification.common.send-result
+    SLACK:
+      topic-request: notification.slack.send-request
+      topic-result: notification.common.send-result
 
 spring:
   kafka:

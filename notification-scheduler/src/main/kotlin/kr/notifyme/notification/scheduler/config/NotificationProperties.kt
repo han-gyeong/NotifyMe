@@ -5,8 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
 
 @Component
-@ConfigurationProperties(prefix = "notification.topics")
-data class NotificationTopics(
-    var request: Map<ChannelType, String> = emptyMap(),
-    var result: Map<ChannelType, String> = emptyMap()
+@ConfigurationProperties(prefix = "notification")
+data class NotificationProperties(
+    var channels: Map<ChannelType, ChannelConfig> = mutableMapOf()
 )
