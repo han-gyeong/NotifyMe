@@ -1,11 +1,6 @@
 package kr.notifyme.notification.entity
 
-import jakarta.persistence.Entity
-import jakarta.persistence.EnumType
-import jakarta.persistence.Enumerated
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
+import jakarta.persistence.*
 import kr.notifyme.notification.domain.ChannelType
 import kr.notifyme.notification.domain.NotificationStatus
 import java.time.LocalDateTime
@@ -43,5 +38,7 @@ class Notification(
         this.notifyAt = notifyAt
     }
 
-
+    fun changeStatus(status: NotificationStatus) {
+        this.status = status
+    }
 }
