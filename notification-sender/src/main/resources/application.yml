@@ -33,11 +33,11 @@ notification:
   channels:
     EMAIL:
       topic-request: notification.email.send-request
-      topic-result: notification.email.send-result
+      topic-result: notification.common.send-result
       group-id: email-sender-group
       concurrency: 5
     SLACK:
       topic-request: notification.slack.send-request
-      topic-result: notification.slack.send-result
+      topic-result: notification.common.send-result
       group-id: slack-sender-group
       concurrency: 5
