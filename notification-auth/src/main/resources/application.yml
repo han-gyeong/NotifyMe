@@ -1,0 +1,5 @@
+spring:
+  r2dbc:
+    url: r2dbc:pool:mysql://localhost:3307/notifyme
+    username: root
+    password: gksrud12
