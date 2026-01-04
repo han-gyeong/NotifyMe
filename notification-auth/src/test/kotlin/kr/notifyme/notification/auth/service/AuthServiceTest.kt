@@ -5,6 +5,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import kr.notifyme.notification.auth.controller.v1.request.LoginRequest
 import kr.notifyme.notification.auth.controller.v1.request.SignUpRequest
 import kr.notifyme.notification.auth.entity.User
 import kr.notifyme.notification.auth.repository.UserRepository
@@ -17,7 +18,7 @@ import kotlin.test.Test
 class AuthServiceTest {
 
     private val tokenHandler: TokenHandler = mockk()
-    private val tokenCacheService: TokenCacheService = mockk()
+    private val tokenCacheService: TokenCacheService = mockk(relaxed = true)
     private val userRepository: UserRepository = mockk()
     private val passwordEncoder: PasswordEncoder = mockk()
 
@@ -86,7 +87,58 @@ class AuthServiceTest {
         coVerify(exactly = 0) { userRepository.save(any()) }
     }
 
+    @Test
+    fun `아이디와 패스워드가 일치하면 로그인이 성공하고 토큰을 반환한다`() = runTest {
+        // given
+        val request = LoginRequest(userId = "test1", password = "pwtest1")
+        val user = User(id = 1L, userId = "test1", password = "pwtest1", email = "test@test.com")
 
+        coEvery { userRepository.findByUserId(request.userId) } returns user
+        every { passwordEncoder.matches(any(), any()) } returns true
+        every { tokenHandler.createAccessToken(user.userId) } returns "accessToken"
+        every { tokenHandler.createRefreshToken(user.userId) } returns "refreshToken"
 
+        // when
+        val tokenResponse = authService.login(request)
 
+        // then
+        assertAll(
+            { assertEquals(tokenResponse.accessToken, "accessToken") },
+            { assertEquals(tokenResponse.refreshToken, "refreshToken") }
+        )
+
+        coVerify(exactly = 1) { tokenCacheService.saveRefreshToken(user.userId, tokenResponse.refreshToken) }
+    }
+
+    @Test
+    fun `아이디가 존재하지 않을 경우 로그인은 실패한다`() = runTest {
+        // given
+        val request = LoginRequest(userId = "test1", password = "pwtest1")
+
+        coEvery { userRepository.findByUserId(request.userId) } returns null
+
+        // when & then
+        val exception = assertThrows<RuntimeException> {
+            authService.login(request)
+        }
+
+        assertEquals(exception.message, "Invalid ID or password")
+    }
+
+    @Test
+    fun `이메일이 존재하지 않을 경우 로그인은 실패한다`() = runTest {
+        // given
+        val request = LoginRequest(userId = "test1", password = "pwtest1")
+        val user = User(id = 1L, userId = "test1", password = "pwtest1", email = "test@test.com")
+
+        coEvery { userRepository.findByUserId(request.userId) } returns user
+        every { passwordEncoder.matches(any(), any()) } returns false
+
+        // when & then
+        val exception = assertThrows<RuntimeException> {
+            authService.login(request)
+        }
+
+        assertEquals(exception.message, "Invalid ID or password")
+    }
 }
