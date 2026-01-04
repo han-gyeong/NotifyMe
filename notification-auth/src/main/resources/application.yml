@@ -3,3 +3,9 @@ spring:
     url: r2dbc:pool:mysql://localhost:3307/notifyme
     username: root
     password: gksrud12
+
+auth:
+  jwt:
+    access-token-expiration: 1800
+    refresh-token-expiration: 604800
+    secret: xbvbTGBf9G9jt76SMnx3s3fCAY5EHaCD
