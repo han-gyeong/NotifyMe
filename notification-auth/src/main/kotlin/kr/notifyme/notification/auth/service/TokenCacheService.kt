@@ -10,27 +10,27 @@ import java.time.Duration
 
 @Service
 class TokenCacheService(
-    private val redisTemplate: ReactiveRedisTemplate<String, String>,
+    private val reactiveRedisTemplate: ReactiveRedisTemplate<String, String>,
     private val jwtProperties: JwtProperties
 ) {
 
     suspend fun getRefreshToken(userId: String): String? {
         val key = "RT:$userId"
-        return redisTemplate.opsForValue().getAndAwait(key)
+        return reactiveRedisTemplate.opsForValue().getAndAwait(key)
     }
 
     suspend fun saveRefreshToken(userId: String, refreshToken: String): Boolean {
         val key = "RT:$userId"
-        return redisTemplate.opsForValue().setAndAwait(key, refreshToken, Duration.ofSeconds(jwtProperties.refreshTokenExpiration))
+        return reactiveRedisTemplate.opsForValue().setAndAwait(key, refreshToken, Duration.ofSeconds(jwtProperties.refreshTokenExpiration))
     }
 
     suspend fun removeRefreshToken(userId: String): Boolean {
         val key = "RT:$userId"
-        return redisTemplate.deleteAndAwait(key) == 1L
+        return reactiveRedisTemplate.deleteAndAwait(key) == 1L
     }
 
     suspend fun addBlacklist(accessToken: String, expirationInSeconds: Long): Boolean {
         val key = "BL:$accessToken"
-        return redisTemplate.opsForValue().setAndAwait(accessToken, key, Duration.ofSeconds(expirationInSeconds))
+        return reactiveRedisTemplate.opsForValue().setAndAwait(accessToken, key, Duration.ofSeconds(expirationInSeconds))
     }
 }

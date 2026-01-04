@@ -11,7 +11,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
 class RedisConfig {
 
     @Bean
-    fun redisTemplate(factory: ReactiveRedisConnectionFactory): ReactiveRedisTemplate<String, String> {
+    fun reactiveRedisTemplate(factory: ReactiveRedisConnectionFactory): ReactiveRedisTemplate<String, String> {
         val serializer = StringRedisSerializer()
 
         val context = RedisSerializationContext
