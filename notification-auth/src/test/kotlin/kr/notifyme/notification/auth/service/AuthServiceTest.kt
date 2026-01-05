@@ -20,7 +20,7 @@ import kotlin.test.Test
 class AuthServiceTest {
 
     private val tokenHandler: TokenHandler = mockk()
-    private val tokenCacheService: TokenCacheService = mockk(relaxed = true)
+    private val tokenCacheService: TokenCacheService = mockk()
     private val userRepository: UserRepository = mockk()
     private val passwordEncoder: PasswordEncoder = mockk()
 
@@ -37,10 +37,10 @@ class AuthServiceTest {
         val request = SignUpRequest(userId = "test1", password = "pwtest1", email = "test@test.com")
         val user = User(1L, "test1", "test@test.com", "encodedPassword")
 
-        coEvery { userRepository.existsByUserId(any()) } returns false
-        coEvery { userRepository.existsByEmail(any()) } returns false
+        coEvery { userRepository.existsByUserId(request.userId) } returns false
+        coEvery { userRepository.existsByEmail(request.email) } returns false
         coEvery { userRepository.save(any()) } returns user
-        every { passwordEncoder.encode(any()) } returns "encodedPassword"
+        every { passwordEncoder.encode(request.password) } returns "encodedPassword"
 
         // when
         val savedUser = authService.signUp(request)
@@ -53,7 +53,7 @@ class AuthServiceTest {
 
         )
 
-        coVerify(exactly = 1) { userRepository.save(any()) }
+        coVerify(exactly = 1) { userRepository.save(any(User::class)) }
     }
 
     @Test
@@ -69,7 +69,7 @@ class AuthServiceTest {
         }
 
         assertEquals(exception.message, "User already exists")
-        coVerify(exactly = 0) { userRepository.save(any()) }
+        coVerify(exactly = 0) { userRepository.save(any(User::class)) }
     }
 
     @Test
@@ -96,9 +96,10 @@ class AuthServiceTest {
         val user = User(id = 1L, userId = "test1", password = "pwtest1", email = "test@test.com")
 
         coEvery { userRepository.findByUserId(request.userId) } returns user
-        every { passwordEncoder.matches(any(), any()) } returns true
+        every { passwordEncoder.matches(request.password, user.password) } returns true
         every { tokenHandler.createAccessToken(user.userId) } returns "accessToken"
         every { tokenHandler.createRefreshToken(user.userId) } returns "refreshToken"
+        coEvery { tokenCacheService.saveRefreshToken(request.userId, "refreshToken") } returns true
 
         // when
         val tokenResponse = authService.login(request)
@@ -134,7 +135,7 @@ class AuthServiceTest {
         val user = User(id = 1L, userId = "test1", password = "pwtest1", email = "test@test.com")
 
         coEvery { userRepository.findByUserId(request.userId) } returns user
-        every { passwordEncoder.matches(any(), any()) } returns false
+        every { passwordEncoder.matches(request.password, user.password) } returns false
 
         // when & then
         val exception = assertThrows<RuntimeException> {
@@ -149,16 +150,19 @@ class AuthServiceTest {
         // given
         val accessToken = "accessToken"
         val claims = Jwts.claims().setSubject("test")
+        val remaining: Long = 1000
 
         every { tokenHandler.parseToken(accessToken) } returns claims
-        every { tokenHandler.getRemainingExpiration(accessToken) } returns 1000
+        coEvery { tokenCacheService.removeRefreshToken("test") } returns true
+        every { tokenHandler.getRemainingExpiration(accessToken) } returns remaining
+        coEvery { tokenCacheService.addBlacklist(accessToken, 1000) } returns true
 
         // when
         authService.logout(accessToken)
 
         // then
         coVerify(exactly = 1) { tokenCacheService.removeRefreshToken("test") }
-        coVerify(exactly = 1) { tokenCacheService.addBlacklist(accessToken, 1000) }
+        coVerify(exactly = 1) { tokenCacheService.addBlacklist(accessToken, remaining) }
     }
 
     @Test
@@ -190,6 +194,7 @@ class AuthServiceTest {
 
         every { tokenHandler.createAccessToken(userId) } returns newAccessToken
         every { tokenHandler.createRefreshToken(userId) } returns newRefreshToken
+        coEvery { tokenCacheService.saveRefreshToken(userId, newRefreshToken) } returns true
 
         // when
         val tokenResponse = authService.refresh(refreshToken)
@@ -223,6 +228,7 @@ class AuthServiceTest {
 
         every { tokenHandler.parseToken(refreshToken) } returns claims
         coEvery { tokenCacheService.getRefreshToken(userId) } returns "refreshToken-invalid"
+        coEvery { tokenCacheService.removeRefreshToken(userId) } returns true
 
         // when
         val exception = assertThrows<RuntimeException> {
@@ -232,5 +238,23 @@ class AuthServiceTest {
         // then
         assertEquals(exception.message, "Unmatched refresh token, Please login again")
         coVerify(exactly = 1) { tokenCacheService.removeRefreshToken(userId) }
+    }
+
+    @Test
+    fun `리프레쉬 토큰이 캐시에서 만료될 경우 재발급 시 오류가 발생한다`() = runTest {
+        // given
+        val userId = "test"
+        val refreshToken = "refreshToken"
+        val claims = Jwts.claims().setSubject(userId)
+
+        every { tokenHandler.parseToken(refreshToken) } returns claims
+        coEvery { tokenCacheService.getRefreshToken(userId) } returns null
+
+        // when & then
+        val exception = assertThrows<RuntimeException> {
+            authService.refresh(refreshToken)
+        }
+
+        assertEquals(exception.message, "Login session has expired")
     }
 }
