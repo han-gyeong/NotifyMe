@@ -173,4 +173,64 @@ class AuthServiceTest {
 
         assertEquals(exception.message, "Invalid Token")
     }
+
+    @Test
+    fun `정상적인 리프레쉬 토큰으로 새로운 액세스 토큰을 발급받을 수 있다`() = runTest {
+        // given
+        val userId = "test"
+        val accessToken = "accessToken"
+        val refreshToken = "refreshToken"
+        val claims = Jwts.claims().setSubject(userId)
+
+        every { tokenHandler.parseToken(refreshToken) } returns claims
+        coEvery { tokenCacheService.getRefreshToken(userId) } returns "refreshToken"
+
+        val newAccessToken = "newAccessToken"
+        val newRefreshToken = "newRefreshToken"
+
+        every { tokenHandler.createAccessToken(userId) } returns newAccessToken
+        every { tokenHandler.createRefreshToken(userId) } returns newRefreshToken
+
+        // when
+        val tokenResponse = authService.refresh(refreshToken)
+
+        // then
+        assertEquals(tokenResponse.accessToken, newAccessToken)
+        assertEquals(tokenResponse.refreshToken, newRefreshToken)
+        coVerify(exactly = 1) { tokenCacheService.saveRefreshToken(userId, newRefreshToken) }
+    }
+
+    @Test
+    fun `리프레쉬 토큰이 올바르지 않을 경우 재발행 시 오류가 발생한다`() = runTest {
+        // given
+        every { tokenHandler.parseToken(any()) } throws MalformedJwtException("ERROR")
+
+        // when & then
+        val exception = assertThrows<RuntimeException> {
+            authService.refresh("newRefreshToken")
+        }
+
+        assertEquals(exception.message, "Invalid Token")
+    }
+
+    @Test
+    fun `리프레쉬 토큰이 캐시와 불일치할 경우 리프레쉬 토큰이 만료되고 오류가 발생한다`() = runTest {
+        // given
+        val userId = "test"
+        val accessToken = "accessToken"
+        val refreshToken = "refreshToken"
+        val claims = Jwts.claims().setSubject(userId)
+
+        every { tokenHandler.parseToken(refreshToken) } returns claims
+        coEvery { tokenCacheService.getRefreshToken(userId) } returns "refreshToken-invalid"
+
+        // when
+        val exception = assertThrows<RuntimeException> {
+            authService.refresh(refreshToken)
+        }
+
+        // then
+        assertEquals(exception.message, "Unmatched refresh token, Please login again")
+        coVerify(exactly = 1) { tokenCacheService.removeRefreshToken(userId) }
+    }
 }
