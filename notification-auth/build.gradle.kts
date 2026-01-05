@@ -40,6 +40,9 @@ dependencies {
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
 	testImplementation("io.mockk:mockk:1.13.9")
+	testImplementation("io.jsonwebtoken:jjwt-api:0.11.5")
+	testRuntimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+	testRuntimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

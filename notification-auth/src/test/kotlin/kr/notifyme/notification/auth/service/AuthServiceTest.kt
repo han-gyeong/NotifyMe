@@ -1,5 +1,7 @@
 package kr.notifyme.notification.auth.service
 
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.MalformedJwtException
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -140,5 +142,35 @@ class AuthServiceTest {
         }
 
         assertEquals(exception.message, "Invalid ID or password")
+    }
+
+    @Test
+    fun `정상적인 액세스 토큰으로 로그아웃을 할 수 있다`() = runTest {
+        // given
+        val accessToken = "accessToken"
+        val claims = Jwts.claims().setSubject("test")
+
+        every { tokenHandler.parseToken(accessToken) } returns claims
+        every { tokenHandler.getRemainingExpiration(accessToken) } returns 1000
+
+        // when
+        authService.logout(accessToken)
+
+        // then
+        coVerify(exactly = 1) { tokenCacheService.removeRefreshToken("test") }
+        coVerify(exactly = 1) { tokenCacheService.addBlacklist(accessToken, 1000) }
+    }
+
+    @Test
+    fun `액세스 토큰이 잘못된 경우 로그아웃 시 예외가 발생한다`() = runTest {
+        // given
+        every { tokenHandler.parseToken(any()) } throws MalformedJwtException("ERROR")
+
+        // when & then
+        val exception = assertThrows<RuntimeException> {
+            authService.logout("accessToken")
+        }
+
+        assertEquals(exception.message, "Invalid Token")
     }
 }
