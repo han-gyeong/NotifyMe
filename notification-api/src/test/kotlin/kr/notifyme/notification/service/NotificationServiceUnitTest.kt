@@ -62,6 +62,7 @@ class NotificationServiceUnitTest {
             { assertEquals(request.message, response.message) },
             { assertEquals(request.destination, response.destination) },
             { assertEquals(request.notifyAt, response.notifyAt) },
+            { assertEquals(userId, response.createdBy) },
             { assertEquals(NotificationStatus.WAITING, response.status) },
         )
 
