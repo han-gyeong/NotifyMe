@@ -200,4 +200,62 @@ class NotificationServiceUnitTest {
 
         assertEquals(exception.message, "No notification with that id $notificationId found")
     }
+
+    @Test
+    fun `사용자가 등록한 특정 조건 이전의 발송건은 취소할 수 있다`() {
+        // given
+        val userId = "test"
+        val notificationId = 1L
+        val notification = Notification(
+            id = notificationId,
+            channelType = ChannelType.EMAIL,
+            message = "message",
+            destination = "test@test.com",
+            notifyAt = LocalDateTime.of(2021, 1, 1, 1, 1, 0),
+            createdBy = userId,
+            status = NotificationStatus.WAITING,
+        )
+
+        every { notificationRepository.findByCreatedByAndId(userId, notificationId) } returns notification
+
+        // when
+        val response = notificationService.cancelNotification(userId, notificationId)
+
+        // then
+        assertEquals(NotificationStatus.CANCELLED, response.status)
+    }
+
+    @Test
+    fun `알람이 존재하지 않으면 취소 시 예외가 발생한다`() {
+        // given
+        val userId = "test"
+        val notificationId = 1L
+
+        every { notificationRepository.findByCreatedByAndId(userId, notificationId) } returns null
+
+        // when & then
+        val exception = assertThrows<IllegalArgumentException> {
+            notificationService.cancelNotification(userId, notificationId)
+        }
+
+        assertEquals("No notification with id $notificationId found", exception.message)
+    }
+
+    @Test
+    fun `취소 불가능한 상태라면 취소 요청 시 예외가 발생한다`() {
+        // given
+        val userId = "test"
+        val notificationId = 1L
+        val notification: Notification = mockk()
+
+        every { notificationRepository.findByCreatedByAndId(userId, notificationId) } returns notification
+        every { notification.canCancel() } returns false
+
+        // when & then
+        val exception = assertThrows<IllegalArgumentException> {
+            notificationService.cancelNotification(userId, notificationId)
+        }
+
+        assertEquals("Cannot cancel notification with id $notificationId", exception.message)
+    }
 }
