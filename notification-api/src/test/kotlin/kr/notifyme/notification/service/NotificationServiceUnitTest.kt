@@ -159,4 +159,45 @@ class NotificationServiceUnitTest {
 
         assertEquals(exception.message, "Cannot modify notification with id $notificationId")
     }
+
+    @Test
+    fun `사용자가 등록한 알람을 ID로 조회할 수 있다`() {
+        // given
+        val notificationId = 1L
+        val userId = "test"
+
+        val notification = Notification(
+            id = notificationId,
+            channelType = ChannelType.EMAIL,
+            message = "message",
+            destination = "test@test.com",
+            notifyAt = LocalDateTime.of(2021, 1, 1, 1, 1, 0),
+            createdBy = userId,
+            status = NotificationStatus.IN_PROGRESS,
+        )
+
+        every { notificationRepository.findByCreatedByAndId(userId, notificationId) } returns notification
+
+        // when
+        val response = notificationService.getNotificationById(userId, notificationId)
+
+        // then
+        assertEquals(notification, response)
+    }
+
+    @Test
+    fun `존재하지 않는 알람이라면 ID로 조회시 오류가 발생한다`() {
+        // given
+        val notificationId = 1L
+        val userId = "test"
+
+        every { notificationRepository.findByCreatedByAndId(userId, notificationId) } returns null
+
+        // when & then
+        val exception = assertThrows<IllegalArgumentException> {
+            notificationService.getNotificationById(userId, notificationId)
+        }
+
+        assertEquals(exception.message, "No notification with that id $notificationId found")
+    }
 }
