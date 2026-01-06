@@ -33,6 +33,8 @@ class Notification(
         status = NotificationStatus.CANCELLED
     }
 
+    fun canModify(): Boolean = status == NotificationStatus.WAITING
+
     fun modify(message: String, notifyAt: LocalDateTime) {
         this.message = message
         this.notifyAt = notifyAt

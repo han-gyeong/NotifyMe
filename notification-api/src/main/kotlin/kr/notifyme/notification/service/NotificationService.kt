@@ -45,7 +45,7 @@ class NotificationService(
         val found = notificationRepository.findByCreatedByAndId(userId, notificationId)
             ?: throw IllegalArgumentException("No notification with id $notificationId found")
 
-        require(found.status == NotificationStatus.WAITING) { "Cannot modify notification with id $notificationId" }
+        require(found.canModify()) { "Cannot modify notification with id $notificationId" }
 
         found.modify(message = request.message, notifyAt = request.notifyAt)
 
