@@ -38,6 +38,9 @@ dependencies {
 	testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 	testImplementation("com.h2database:h2")
 
+	testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
+	testImplementation("io.kotest:kotest-assertions-core:5.8.0")
+
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
