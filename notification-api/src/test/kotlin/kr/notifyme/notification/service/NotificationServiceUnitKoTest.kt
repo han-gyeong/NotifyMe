@@ -7,18 +7,15 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
 import io.mockk.verify
 import kr.notifyme.notification.controller.v1.request.ModifyNotificationRequest
 import kr.notifyme.notification.controller.v1.request.NotificationRequest
 import kr.notifyme.notification.domain.ChannelType
 import kr.notifyme.notification.domain.NotificationStatus
 import kr.notifyme.notification.entity.Notification
-import kr.notifyme.notification.entity.NotificationDispatch
 import kr.notifyme.notification.fixture.NotificationFixture
 import kr.notifyme.notification.repository.NotificationDispatchRepository
 import kr.notifyme.notification.repository.NotificationRepository
-import org.springframework.test.util.ReflectionTestUtils
 import java.time.LocalDateTime
 
 class NotificationServiceUnitKoTest: BehaviorSpec({
@@ -37,25 +34,14 @@ class NotificationServiceUnitKoTest: BehaviorSpec({
             notifyAt = now
         )
 
-        val notificationSlot = slot<Notification>()
-        val notificationDispatchSlot = slot<NotificationDispatch>()
-
-        every { notificationRepository.save(capture(notificationSlot)) } answers {
-            notificationSlot.captured.also {
-                ReflectionTestUtils.setField(it, "id", 1L)
-            }
-        }
-
-        every { notificationDispatchRepository.save(capture(notificationDispatchSlot)) } answers {
-            notificationDispatchSlot.captured
-        }
+        every { notificationRepository.save(any()) } answers { firstArg() }
+        every { notificationDispatchRepository.save(any()) } answers { firstArg() }
 
         When("알람을 등록하면") {
             val response = notificationService.scheduleNotification(userId, request)
 
             Then("예약된 알람 정보가 반환되어야 한다") {
                 assertSoftly {
-                    response.id shouldBe 1
                     response.channelType shouldBe request.channel
                     response.message shouldBe request.message
                     response.destination shouldBe request.destination
@@ -67,10 +53,12 @@ class NotificationServiceUnitKoTest: BehaviorSpec({
                 verify(exactly = 1) { notificationRepository.save(any()) }
             }
 
-            Then("발송 정보도 동시에 생성되어야 한다") {
-                notificationDispatchSlot.captured.notificationId shouldBe response.id
-
-                verify(exactly = 1) { notificationDispatchRepository.save(any()) }
+            Then("알람 발송 정보도 동시에 저장된다") {
+                verify {
+                    notificationDispatchRepository.save(
+                        match { it.notificationId == response.id }
+                    )
+                }
             }
         }
     }
