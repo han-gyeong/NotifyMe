@@ -5,23 +5,27 @@ import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
 import kr.notifyme.notification.controller.v1.request.ModifyNotificationRequest
 import kr.notifyme.notification.controller.v1.request.NotificationRequest
 import kr.notifyme.notification.domain.ChannelType
 import kr.notifyme.notification.domain.NotificationStatus
 import kr.notifyme.notification.entity.Notification
+import kr.notifyme.notification.event.NotificationEvent
 import kr.notifyme.notification.fixture.NotificationFixture
-import kr.notifyme.notification.repository.NotificationDispatchRepository
 import kr.notifyme.notification.repository.NotificationRepository
+import org.springframework.context.ApplicationEventPublisher
 import java.time.LocalDateTime
 
 class NotificationServiceUnitKoTest: BehaviorSpec({
     val notificationRepository: NotificationRepository = mockk()
-    val notificationDispatchRepository: NotificationDispatchRepository = mockk()
-    val notificationService = NotificationService(notificationRepository, notificationDispatchRepository)
+    val applicationEventPublisher: ApplicationEventPublisher = mockk()
+
+    val notificationService = NotificationService(notificationRepository, applicationEventPublisher)
+
+    afterContainer {
+        clearMocks(notificationRepository, applicationEventPublisher)
+    }
 
     Given("알림 예약 요청이 들어왔을때") {
         val userId = "test"
@@ -35,7 +39,7 @@ class NotificationServiceUnitKoTest: BehaviorSpec({
         )
 
         every { notificationRepository.save(any()) } answers { firstArg() }
-        every { notificationDispatchRepository.save(any()) } answers { firstArg() }
+        every { applicationEventPublisher.publishEvent(any< NotificationEvent>()) } just Runs
 
         When("알람을 등록하면") {
             val response = notificationService.scheduleNotification(userId, request)
@@ -53,12 +57,8 @@ class NotificationServiceUnitKoTest: BehaviorSpec({
                 verify(exactly = 1) { notificationRepository.save(any()) }
             }
 
-            Then("알람 발송 정보도 동시에 저장된다") {
-                verify {
-                    notificationDispatchRepository.save(
-                        match { it.notificationId == response.id }
-                    )
-                }
+            Then("알림 생성 이벤트가 발행된다") {
+                verify(exactly = 1) { applicationEventPublisher.publishEvent(any< NotificationEvent>()) }
             }
         }
     }
@@ -77,6 +77,7 @@ class NotificationServiceUnitKoTest: BehaviorSpec({
         )
 
         every { notificationRepository.findByCreatedByAndId(userId, notificationId) } returns notification
+        every { applicationEventPublisher.publishEvent(any< NotificationEvent>()) } just Runs
 
         When("알람을 수정하면") {
             val response = notificationService.modifyNotification(userId, notificationId, request)
@@ -86,6 +87,10 @@ class NotificationServiceUnitKoTest: BehaviorSpec({
                     response.message shouldBe request.message
                     response.notifyAt shouldBe request.notifyAt
                 }
+            }
+
+            Then("수정 이벤트가 빌행된다") {
+                verify(exactly = 1) { applicationEventPublisher.publishEvent(any< NotificationEvent>()) }
             }
         }
     }
@@ -179,12 +184,17 @@ class NotificationServiceUnitKoTest: BehaviorSpec({
         )
 
         every { notificationRepository.findByCreatedByAndId(userId, notificationId) } returns notification
+        every { applicationEventPublisher.publishEvent(any< NotificationEvent>()) } just Runs
 
         When("알람 취소를 요청하면") {
             val response = notificationService.cancelNotification(userId, notificationId)
 
             Then("알람이 정상적으로 취소된다") {
                 response.status shouldBe NotificationStatus.CANCELLED
+            }
+
+            Then("취소 이벤트가 빌행된다") {
+                verify(exactly = 1) { applicationEventPublisher.publishEvent(any< NotificationEvent>()) }
             }
         }
     }
