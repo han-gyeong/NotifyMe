@@ -5,17 +5,21 @@ import kr.notifyme.notification.controller.v1.request.ModifyNotificationRequest
 import kr.notifyme.notification.controller.v1.request.NotificationRequest
 import kr.notifyme.notification.domain.NotificationStatus
 import kr.notifyme.notification.entity.Notification
-import kr.notifyme.notification.entity.NotificationDispatch
-import kr.notifyme.notification.repository.NotificationDispatchRepository
+import kr.notifyme.notification.event.EventType
+import kr.notifyme.notification.event.NotificationEvent
+import kr.notifyme.notification.event.NotificationMessage
 import kr.notifyme.notification.repository.NotificationRepository
 import kr.notifyme.notification.support.OffsetLimit
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Slice
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
+import java.util.*
 
 @Service
 class NotificationService(
     private val notificationRepository: NotificationRepository,
-    private val notificationDispatchRepository: NotificationDispatchRepository
+    private val eventPublisher: ApplicationEventPublisher
 ) {
 
     @Transactional
@@ -31,11 +35,7 @@ class NotificationService(
             )
         )
 
-        notificationDispatchRepository.save(
-            NotificationDispatch(
-                notificationId = notification.id
-            )
-        )
+        publishEvent(EventType.CREATE, notification)
 
         return notification
     }
@@ -48,6 +48,8 @@ class NotificationService(
         require(found.canModify()) { "Cannot modify notification with id $notificationId" }
 
         found.modify(message = request.message, notifyAt = request.notifyAt)
+
+        publishEvent(EventType.MODIFY, found)
 
         return found
     }
@@ -72,6 +74,18 @@ class NotificationService(
 
         found.cancel()
 
+        publishEvent(EventType.CANCEL, found)
+
         return found
+    }
+
+    private fun publishEvent(eventType: EventType, notification: Notification) {
+        eventPublisher.publishEvent(NotificationEvent(
+            id = UUID.randomUUID().toString(),
+            aggregateId = notification.id,
+            operationType = eventType,
+            payload = NotificationMessage.fromNotification(notification),
+            createdAt = LocalDateTime.now(),
+        ))
     }
 }
