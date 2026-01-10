@@ -4,11 +4,11 @@ import java.time.LocalDateTime
 
 data class NotificationEvent(
 
-    val id: String,
+    val eventId: String,
 
-    val aggregateId: Long,
+    val notificationId: Long,
 
-    val operationType: EventType,
+    val eventType: EventType,
 
     val payload: NotificationMessage,
 

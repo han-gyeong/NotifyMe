@@ -81,9 +81,9 @@ class NotificationService(
 
     private fun publishEvent(eventType: EventType, notification: Notification) {
         eventPublisher.publishEvent(NotificationEvent(
-            id = UUID.randomUUID().toString(),
-            aggregateId = notification.id,
-            operationType = eventType,
+            eventId = UUID.randomUUID().toString(),
+            notificationId = notification.id,
+            eventType = eventType,
             payload = NotificationMessage.fromNotification(notification),
             createdAt = LocalDateTime.now(),
         ))

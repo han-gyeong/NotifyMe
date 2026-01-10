@@ -29,9 +29,9 @@ class NotificationOutboxListener(
     fun saveOutbox(event: NotificationEvent) {
         notificationOutboxService.save(
             NotificationOutbox(
-                eventId = event.id,
-                eventType = event.operationType,
-                aggregateId = event.aggregateId,
+                eventId = event.eventId,
+                eventType = event.eventType,
+                aggregateId = event.notificationId,
                 payload = convertToJson(event.payload),
                 status = OutboxStatus.WAITING,
                 createdAt = event.createdAt,
@@ -42,8 +42,8 @@ class NotificationOutboxListener(
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     fun publishRealtime(event: NotificationEvent) {
-        val foundEvent = notificationOutboxService.findByEventId(event.id)
-            ?: throw IllegalArgumentException("No notification outbox found with id ${event.id}")
+        val foundEvent = notificationOutboxService.findByEventId(event.eventId)
+            ?: throw IllegalArgumentException("No notification outbox found with id ${event.eventId}")
 
         try {
             kafkaTemplate.send("notification-topic", foundEvent.aggregateId.toString(), foundEvent.payload)
