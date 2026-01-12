@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 
 @Service
-class MessageDispatchService(
+class NotificationDeliveryService(
     private val kafkaTemplate: KafkaTemplate<String, SendRequest>,
     private val notificationProperties: NotificationProperties,
     private val scheduledNotificationRepository: ScheduledNotificationRepository) {
@@ -22,7 +22,7 @@ class MessageDispatchService(
     private val log: Logger = LoggerFactory.getLogger(javaClass)
 
     @Transactional
-    fun doDispatch() {
+    fun doDeliver() {
         val readyNotifications =
             scheduledNotificationRepository.findReadyNotificationsWithLock(LocalDateTime.now(), Pageable.ofSize(100))
 
