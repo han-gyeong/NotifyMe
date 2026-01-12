@@ -84,7 +84,13 @@ class NotificationService(
             eventId = UUID.randomUUID().toString(),
             notificationId = notification.id,
             eventType = eventType,
-            payload = NotificationMessage.fromNotification(notification),
+            payload = NotificationMessage(
+                id = notification.id,
+                channel = notification.channelType,
+                destination = notification.destination,
+                notifyAt = notification.notifyAt,
+                message = notification.message,
+            ),
             createdAt = LocalDateTime.now(),
         ))
     }

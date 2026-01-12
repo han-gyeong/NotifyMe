@@ -13,5 +13,4 @@ data class NotificationEvent(
     val payload: NotificationMessage,
 
     val createdAt: LocalDateTime,
-
     )

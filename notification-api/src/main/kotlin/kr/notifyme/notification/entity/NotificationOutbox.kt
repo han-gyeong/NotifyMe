@@ -14,7 +14,7 @@ class NotificationOutbox(
     @Column(unique = true, nullable = false)
     val eventId: String,
 
-    val aggregateId: Long,
+    val notificationId: Long,
 
     @Enumerated(EnumType.STRING)
     val eventType: EventType,
