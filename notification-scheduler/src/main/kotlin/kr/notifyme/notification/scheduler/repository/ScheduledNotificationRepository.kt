@@ -19,7 +19,11 @@ interface ScheduledNotificationRepository: JpaRepository<ScheduledNotification, 
     fun findReadyNotificationsWithLock(now: LocalDateTime, pageable: Pageable): List<ScheduledNotification>
 
     @Modifying
-    @Query("update ScheduledNotification m set m.status = :status where m.notificationId = :notificationId")
-    fun updateStatus(notificationId: Long, status: NotificationStatus): Int
+    @Query("update ScheduledNotification m set m.status = :status where m.id = :scheduleId")
+    fun updateStatus(scheduleId: Long, status: NotificationStatus): Int
+
+    @Modifying
+    @Query("update ScheduledNotification m set m.status = :status where m.id in :scheduleIds")
+    fun updateStatus(scheduleIds: List<Long>, status: NotificationStatus): Int
 
 }
