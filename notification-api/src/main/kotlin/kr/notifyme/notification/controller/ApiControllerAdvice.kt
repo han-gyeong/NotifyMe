@@ -17,4 +17,11 @@ class ApiControllerAdvice {
 
         return ApiResponse.error(violated)
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgumentException(e: IllegalArgumentException) : ApiResponse<Any> {
+        val message = e.message ?: ""
+        return ApiResponse.error(message)
+    }
 }
