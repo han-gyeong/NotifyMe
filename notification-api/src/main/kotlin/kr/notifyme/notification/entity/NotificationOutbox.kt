@@ -19,6 +19,7 @@ class NotificationOutbox(
     @Enumerated(EnumType.STRING)
     val eventType: EventType,
 
+    @Column(length = 4000)
     val payload: String,
 
     @Enumerated(EnumType.STRING)
