@@ -1,15 +1,18 @@
 spring:
+  profiles:
+    active: local
+
   cloud:
     gateway:
       server:
         webflux:
           routes:
             - id: auth-api
-              uri: http://localhost:8081
+              uri: lb://notification-auth
               predicates:
                 - Path=/api/v1/auth/**
             - id: notification-api
-              uri: http://localhost:8082
+              uri: lb://notification-api
               predicates:
                 - Path=/api/v1/notifications/**
 
@@ -18,4 +21,4 @@ auth:
     secret: xbvbTGBf9G9jt76SMnx3s3fCAY5EHaCD
   whitelist:
     paths:
-      - /api/v1/auth
+      - /api/v1/auth/**
