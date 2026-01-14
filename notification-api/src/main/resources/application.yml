@@ -23,3 +23,12 @@ notification:
   consumer:
     group-id: result-group
     concurrency: 5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  metrics:
+    tags:
+      application: notification-api
