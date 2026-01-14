@@ -24,4 +24,10 @@ class ApiControllerAdvice {
         val message = e.message ?: ""
         return ApiResponse.error(message)
     }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception::class)
+    suspend fun handleCommonException(ex: Exception): ApiResponse<Any> {
+        return ApiResponse.error("Internal System Error")
+    }
 }
