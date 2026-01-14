@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.1
@@ -38,6 +36,22 @@ services:
     networks:
       - dev-net
 
+  mysql:
+    image: mysql:8.0
+    container_name: dev-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: "gksrud12" # root 비밀번호
+      MYSQL_DATABASE: "notifyme"     # 초기 생성 데이터베이스 이름
+      MYSQL_USER: "notifyme"         # 일반 유저명
+      MYSQL_PASSWORD: "gksrud12"  # 일반 유저 비밀번호
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - dev-net
+
   redis:
     image: redis:7
     container_name: dev-redis
@@ -69,3 +83,4 @@ networks:
 
 volumes:
   redis-data:
+  mysql-data:
