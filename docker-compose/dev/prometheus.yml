@@ -1,0 +1,9 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'eureka-discovery'
+    metrics_path: '/actuator/prometheus'
+    # Eureka를 통해 서비스를 자동으로 찾도록 설정
+    eureka_sd_configs:
+      - server: http://notification-eureka:8761/eureka

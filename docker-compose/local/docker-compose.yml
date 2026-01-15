@@ -66,21 +66,33 @@ services:
 
   prometheus:
     image: prom/prometheus
+    container_name: dev-prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus # 메트릭 데이터 저장 장소
     ports:
       - "9090:9090"
+    networks:
+      - dev-net
 
   grafana:
     image: grafana/grafana
+    container_name: dev-grafana
+    volumes:
+      - grafana-data:/var/lib/grafana
     ports:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - dev-net
 
 networks:
   dev-net:
+    name: dev-net
 
 volumes:
   redis-data:
   mysql-data:
+  prometheus-data:
+  grafana-data:
