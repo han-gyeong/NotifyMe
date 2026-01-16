@@ -1,9 +1,10 @@
 spring:
-  main:
-    web-application-type: none
+  application:
+    name: notification-sender-${sender.type}
+  profiles:
+    active: local
 
   kafka:
-    bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -16,6 +17,7 @@ spring:
         spring.json.trusted.packages: "*"
         spring.json.use.type.headers: false
         spring.json.value.default.type: "kr.notifyme.notification.sender.dto.SendRequest"
+
 slack:
   webhook-url: ${SLACK_WEBHOOK_URL}
 
@@ -41,3 +43,12 @@ notification:
       topic-result: notification.common.send-result
       group-id: slack-sender-group
       concurrency: 5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}

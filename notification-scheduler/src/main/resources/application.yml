@@ -1,18 +1,10 @@
-notification:
-  scheduler:
-    id: 1
-    lock-until-minutes: 5
-  channels:
-    EMAIL:
-      topic-request: notification.email.send-request
-      topic-result: notification.common.send-result
-    SLACK:
-      topic-request: notification.slack.send-request
-      topic-result: notification.common.send-result
-
 spring:
+  application:
+    name: notification-scheduler
+  profiles:
+    active: local
+
   kafka:
-    bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -23,11 +15,6 @@ spring:
       properties:
         spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
         spring.json.trusted.packages: "*"
-  datasource:
-    url: jdbc:mysql://localhost:3307/notifyme
-    username: root
-    password: gksrud12
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
@@ -35,5 +22,23 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        show_sql: true
+        show_sql: false
     open-in-view: false
+
+notification:
+  channels:
+    EMAIL:
+      topic-request: notification.email.send-request
+      topic-result: notification.common.send-result
+    SLACK:
+      topic-request: notification.slack.send-request
+      topic-result: notification.common.send-result
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}

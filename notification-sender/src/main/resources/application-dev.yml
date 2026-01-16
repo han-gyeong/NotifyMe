@@ -1,0 +1,13 @@
+server:
+  port: 0
+
+spring:
+  kafka:
+    bootstrap-servers: dev-kafka:9092
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://notification-eureka:8761/eureka/
+  instance:
+    prefer-ip-address: true

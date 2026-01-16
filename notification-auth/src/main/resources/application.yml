@@ -1,11 +1,20 @@
 spring:
-  r2dbc:
-    url: r2dbc:pool:mysql://localhost:3307/notifyme
-    username: root
-    password: gksrud12
+  application:
+    name: notification-auth
+  profiles:
+    active: local
 
 auth:
   jwt:
     access-token-expiration: 1800
     refresh-token-expiration: 604800
     secret: xbvbTGBf9G9jt76SMnx3s3fCAY5EHaCD
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}

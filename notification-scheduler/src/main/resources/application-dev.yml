@@ -2,23 +2,14 @@ server:
   port: 0
 
 spring:
+  kafka:
+    bootstrap-servers: dev-kafka:9092
+
   datasource:
     url: jdbc:mysql://dev-mysql:3306/notifyme
     username: notifyme
     password: gksrud12
     driver-class-name: com.mysql.cj.jdbc.Driver
-
-  kafka:
-    bootstrap-servers: dev-kafka:9092
-
-  jpa:
-    hibernate:
-      ddl-auto: create
-    properties:
-      hibernate:
-        format_sql: true
-        show_sql: false
-    open-in-view: false
 
 eureka:
   client:
