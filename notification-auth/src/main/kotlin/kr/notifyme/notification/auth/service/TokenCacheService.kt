@@ -31,6 +31,6 @@ class TokenCacheService(
 
     suspend fun addBlacklist(accessToken: String, expirationInSeconds: Long): Boolean {
         val key = "BL:$accessToken"
-        return reactiveRedisTemplate.opsForValue().setAndAwait(accessToken, key, Duration.ofSeconds(expirationInSeconds))
+        return reactiveRedisTemplate.opsForValue().setAndAwait(key, "-", Duration.ofSeconds(expirationInSeconds))
     }
 }
