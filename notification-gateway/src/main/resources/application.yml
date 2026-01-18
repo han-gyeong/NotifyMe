@@ -1,6 +1,8 @@
 spring:
   profiles:
     active: local
+  application:
+    name: notification-gateway
 
   cloud:
     gateway:
@@ -22,3 +24,12 @@ auth:
   whitelist:
     paths:
       - /api/v1/auth/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info, prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}

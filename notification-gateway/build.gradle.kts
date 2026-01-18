@@ -25,9 +25,10 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springframework.cloud:spring-cloud-starter-gateway-server-webflux")
 	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
-
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
+	runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
