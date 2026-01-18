@@ -25,7 +25,7 @@ class TokenHandler(
         return jwtParser.parseClaimsJws(token).body
     }
 
-    fun getUserInfo(claims: Claims): String {
+    fun getUserId(claims: Claims): String {
         return claims.subject
     }
 }

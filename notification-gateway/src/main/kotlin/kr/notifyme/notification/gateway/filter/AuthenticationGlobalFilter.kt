@@ -1,5 +1,8 @@
 package kr.notifyme.notification.gateway.filter
 
+import kotlinx.coroutines.reactor.awaitSingleOrNull
+import kotlinx.coroutines.reactor.mono
+import kr.notifyme.notification.gateway.auth.TokenCacheService
 import kr.notifyme.notification.gateway.auth.TokenHandler
 import kr.notifyme.notification.gateway.config.AuthWhiteListProperties
 import org.slf4j.LoggerFactory
@@ -15,6 +18,7 @@ import reactor.core.publisher.Mono
 
 @Component
 class AuthenticationGlobalFilter(
+    private val tokenCacheService: TokenCacheService,
     private val whiteListProperties: AuthWhiteListProperties,
     private val tokenHandler: TokenHandler,
 ) : GlobalFilter, Ordered {
@@ -27,36 +31,40 @@ class AuthenticationGlobalFilter(
 
     private val pathMatcher = AntPathMatcher()
 
-    override fun filter(exchange: ServerWebExchange, chain: GatewayFilterChain): Mono<Void> {
+    override fun filter(exchange: ServerWebExchange, chain: GatewayFilterChain): Mono<Void> = mono {
         val request = exchange.request
         val path = request.uri.path
 
         val isWhiteList = whiteListProperties.paths.any { pattern -> pathMatcher.match(pattern, path) }
         if (isWhiteList) {
-            return chain.filter(exchange)
+            return@mono chain.filter(exchange).awaitSingleOrNull()
         }
 
         val authHeader = request.headers.getFirst(HttpHeaders.AUTHORIZATION)
         if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
-            return unAuthorizedResponse(exchange)
+            return@mono unAuthorizedResponse(exchange).awaitSingleOrNull()
         }
 
         val token = authHeader.removePrefix(BEARER_PREFIX)
 
         try {
             val claims = tokenHandler.parseToken(token)
+            val userId = tokenHandler.getUserId(claims)
 
-            val userInfo = tokenHandler.getUserInfo(claims)
+            val isBlacklistToken = tokenCacheService.isTokenBlacklisted(token)
+            if (isBlacklistToken) {
+                return@mono unAuthorizedResponse(exchange).awaitSingleOrNull()
+            }
 
             val mutatedRequest = exchange.request.mutate()
-                .header(HEADER_USER_ID, userInfo)
+                .header(HEADER_USER_ID, userId)
                 .headers { it.remove(HttpHeaders.AUTHORIZATION) }
                 .build()
 
-            return chain.filter(exchange.mutate().request(mutatedRequest).build())
+            return@mono chain.filter(exchange.mutate().request(mutatedRequest).build()).awaitSingleOrNull()
         } catch (e: Exception) {
             log.error("error on validation: {}", path, e)
-            return unAuthorizedResponse(exchange)
+            return@mono unAuthorizedResponse(exchange).awaitSingleOrNull()
         }
     }
 
