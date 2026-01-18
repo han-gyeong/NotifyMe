@@ -1,0 +1,104 @@
+x-logging: &default-logging
+  options:
+    max-size: "10m"
+    max-file: "3"
+  driver: json-file
+
+services:
+  # 1. Service Discovery (Eureka)
+  notification-eureka:
+    image: imoniz/notifyme:eureka-v1
+    container_name: notification-eureka
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - JAVA_OPTS=-Xms256m -Xmx256m
+      - TZ=Asia/Seoul
+    logging: *default-logging
+    networks:
+      - dev-net
+
+  # 2. API Gateway
+  notification-gateway:
+    image: imoniz/notifyme:gateway-v1
+    container_name: notification-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - JAVA_OPTS=-Xms256m -Xmx256m
+      - TZ=Asia/Seoul
+    logging: *default-logging
+    networks:
+      - dev-net
+
+  # 3. Auth Service
+  notification-auth:
+    image: imoniz/notifyme:auth-v1
+    container_name: notification-auth
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - JAVA_OPTS=-Xms512m -Xmx512m
+      - TZ=Asia/Seoul
+    logging: *default-logging
+    networks:
+      - dev-net
+
+  # 4. Main API Service
+  notification-api:
+    image: imoniz/notifyme:api-v1
+    container_name: notification-api
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - JAVA_OPTS=-Xms512m -Xmx512m
+      - TZ=Asia/Seoul
+    logging: *default-logging
+    networks:
+      - dev-net
+
+  # 5. Scheduler Service
+  notification-scheduler:
+    image: imoniz/notifyme:scheduler-v1
+    container_name: notification-scheduler
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - JAVA_OPTS=-Xms512m -Xmx512m
+      - TZ=Asia/Seoul
+    logging: *default-logging
+    networks:
+      - dev-net
+
+  # 6. Sender Service - EMAIL
+  notification-sender-email:
+    image: imoniz/notifyme:sender-v1
+    container_name: notification-sender-email
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - JAVA_OPTS=-Xms512m -Xmx512m
+      - SENDER_TYPE=EMAIL
+      - SMTP_SERVER=${SMTP_SERVER}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - TZ=Asia/Seoul
+    logging: *default-logging
+    networks:
+      - dev-net
+
+  # 6. Sender Service - SLACK
+  notification-sender-slack:
+    image: imoniz/notifyme:sender-v1
+    container_name: notification-sender-slack
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - JAVA_OPTS=-Xms512m -Xmx512m
+      - SENDER_TYPE=SLACK
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - TZ=Asia/Seoul
+    logging: *default-logging
+    networks:
+      - dev-net
+
+networks:
+  dev-net:
+    external: true
