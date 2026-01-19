@@ -3,21 +3,33 @@ package kr.notifyme.notification.sender.service
 import kotlinx.coroutines.test.runTest
 import kr.notifyme.notification.domain.ChannelType
 import kr.notifyme.notification.sender.dto.SendRequest
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
 import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.web.reactive.function.client.WebClient
 
-@SpringBootTest
-class SlackChannelSenderTest(
-    @Value("\${slack.webhook-url}") private val webhookUrl: String,
-    @Autowired val slackChannelSender: SlackChannelSender
-) {
+class SlackChannelSenderTest {
+
+    private lateinit var mockWebServer: MockWebServer
+    private lateinit var slackChannelSender: SlackChannelSender
+
+    @BeforeEach
+    fun generateMockWeb() {
+        mockWebServer = MockWebServer()
+        mockWebServer.start()
+
+        val webClientBuilder = WebClient.builder()
+        slackChannelSender = SlackChannelSender(webClientBuilder)
+    }
 
     @Test
     fun `정상적으로 발송이 수행된다`() = runTest {
         // given
+        val webhookUrl = mockWebServer.url("/valid-hook").toString()
+        mockWebServer.enqueue(MockResponse().setResponseCode(200).setBody("OK"))
+
         val request = SendRequest(
             1L,
             ChannelType.SLACK,
@@ -30,15 +42,21 @@ class SlackChannelSenderTest(
 
         // then
         Assertions.assertThat(result.success).isTrue
+
+        val body = mockWebServer.takeRequest().body.readUtf8()
+        Assertions.assertThat(body).contains(request.message)
     }
 
     @Test
     fun `이상한 URL일 경우 success 값은 False이다`() = runTest {
         // given
+        val webhookUrl = mockWebServer.url("/invalid-hook").toString()
+        mockWebServer.enqueue(MockResponse().setResponseCode(403).setBody("invalid_token"))
+
         val request = SendRequest(
             1L,
             ChannelType.SLACK,
-            "https://hooks.slack.com/services/This-is-not-valid-address",
+            webhookUrl,
             "Hello, it's not me"
         )
 
@@ -47,6 +65,9 @@ class SlackChannelSenderTest(
 
         // then
         Assertions.assertThat(result.success).isFalse
+
+        val body = mockWebServer.takeRequest().body.readUtf8()
+        Assertions.assertThat(body).contains(request.message)
     }
 
     @Test
@@ -55,7 +76,7 @@ class SlackChannelSenderTest(
         val request = SendRequest(
             1L,
             ChannelType.SLACK,
-            webhookUrl,
+            "",
             "message"
         )
 
@@ -72,7 +93,7 @@ class SlackChannelSenderTest(
         val request = SendRequest(
             1L,
             ChannelType.EMAIL,
-            webhookUrl,
+            "",
             "message"
         )
 
