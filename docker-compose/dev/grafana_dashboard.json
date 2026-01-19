@@ -1,0 +1,320 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": 21,
+  "links": [],
+  "panels": [
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "displayName": "${__series.name}",
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 0 },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "vertical",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [ "lastNotNull" ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "name_and_value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum(up) by (application)",
+          "legendFormat": "{{application}}",
+          "refId": "A"
+        }
+      ],
+      "title": "1. 서비스별 가동 대수",
+      "type": "stat"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "smooth",
+            "lineWidth": 1
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "id": 2,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "label_replace(sum by (application, instance, status) (increase(http_server_requests_seconds_count[1m])), \"id\", \"$1\", \"instance\", \"(.{4}).*\")",
+          "legendFormat": "{{application}}:{{id}} ({{status}})",
+          "refId": "A"
+        }
+      ],
+      "title": "2. 응답 상태별 요청 (RPM - 분당 건수)",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "linear",
+            "lineWidth": 2
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": ".*Max" },
+            "properties": [
+              { "id": "custom.lineStyle", "value": { "dash": [ 5, 5 ], "fill": "dash" } },
+              { "id": "custom.lineWidth", "value": 1 }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "id": 3,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "label_replace(sum by (application, instance) (hikaricp_connections_active), \"id\", \"$1\", \"instance\", \"(.{4}).*\")",
+          "legendFormat": "{{application}}:{{id}} Active",
+          "refId": "A"
+        },
+        {
+          "expr": "label_replace(sum by (application, instance) (hikaricp_connections_idle), \"id\", \"$1\", \"instance\", \"(.{4}).*\")",
+          "legendFormat": "{{application}}:{{id}} Idle",
+          "refId": "B"
+        },
+        {
+          "expr": "label_replace(sum by (application, instance) (hikaricp_connections_max), \"id\", \"$1\", \"instance\", \"(.{4}).*\")",
+          "legendFormat": "{{application}}:{{id}} Max",
+          "refId": "C"
+        }
+      ],
+      "title": "3. 히카리 풀 (Active/Idle/Max)",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "bytes"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": ".*Max" },
+            "properties": [
+              { "id": "custom.lineStyle", "value": { "dash": [ 5, 5 ], "fill": "dash" } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "id": 4,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "label_replace(sum by (application, instance) (jvm_memory_used_bytes{area=\"heap\"}), \"id\", \"$1\", \"instance\", \"(.{4}).*\")",
+          "legendFormat": "{{application}}:{{id}} Used",
+          "refId": "A"
+        },
+        {
+          "expr": "label_replace(sum by (application, instance) (jvm_memory_max_bytes{area=\"heap\"}), \"id\", \"$1\", \"instance\", \"(.{4}).*\")",
+          "legendFormat": "{{application}}:{{id}} Max",
+          "refId": "B"
+        }
+      ],
+      "title": "4. JVM Heap (앱:ID4 사용량 및 한도)",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "id": 5,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "label_replace(sum by (application, instance) (increase(kafka_consumer_fetch_manager_records_consumed_total[1m])), \"id\", \"$1\", \"instance\", \"(.{4}).*\")",
+          "legendFormat": "{{application}}:{{id}} EPM",
+          "refId": "A"
+        }
+      ],
+      "title": "5. 카프카 처리량 (Consume EPM - 분당 건수)",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 22 },
+      "id": 6,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single" }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "label_replace(sum by (application, instance) (irate(http_server_requests_seconds_sum[2m])) / sum by (application, instance) (irate(http_server_requests_seconds_count[2m])), \"id\", \"$1\", \"instance\", \"(.{4}).*\")",
+          "legendFormat": "{{application}}:{{id}} Avg Latency",
+          "refId": "A"
+        }
+      ],
+      "title": "6. 모듈별 평균 응답 시간 (Inbound Latency)",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 30 },
+      "id": 7,
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "sum by (topic, consumergroup) (kafka_consumergroup_lag)",
+          "legendFormat": "Topic: {{topic}} (Group: {{consumergroup}})",
+          "refId": "A"
+        }
+      ],
+      "title": "7. 카프카 토픽별 Consumer Lag (Kafka Exporter)",
+      "type": "timeseries"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 38 },
+      "id": 8,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "single" }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "expr": "label_replace(sum by (application, instance, clientName) (irate(http_client_requests_seconds_sum[2m])) / sum by (application, instance, clientName) (irate(http_client_requests_seconds_count[2m])), \"id\", \"$1\", \"instance\", \"(.{4}).*\")",
+          "legendFormat": "{{application}}:{{id}} -> {{clientName}}",
+          "refId": "A"
+        }
+      ],
+      "title": "8. 외부 API 호출 평균 지연 시간 (Outbound Latency)",
+      "type": "timeseries"
+    }
+  ],
+  "preload": false,
+  "refresh": "auto",
+  "schemaVersion": 42,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": ".*",
+        "current": { "text": [ "All" ], "value": [ "$__all" ] },
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "includeAll": true,
+        "multi": true,
+        "name": "application",
+        "options": [],
+        "query": "label_values(up, application)",
+        "refresh": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": { "from": "now-5m", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "NotifyMe Dashboard",
+  "uid": "4b71d155-b770-404c-a46d-f73734ba3ae4",
+  "version": 9
+}

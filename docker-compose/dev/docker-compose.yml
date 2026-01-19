@@ -87,6 +87,16 @@ services:
     networks:
       - dev-net
 
+  kafka-exporter:
+    image: danielqsj/kafka-exporter:latest
+    container_name: kafka-exporter
+    command:
+      - "--kafka.server=dev-kafka:9092"  # 본인의 Kafka 주소로 변경
+    ports:
+      - "9308:9308"
+    networks:
+      - dev-net  # Kafka와 같은 네트워크 사용
+
 networks:
   dev-net:
     name: dev-net
