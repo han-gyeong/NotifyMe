@@ -54,7 +54,7 @@ class AuthController(
     private fun setRefreshTokenCookie(refreshToken: String, exchange: ServerWebExchange) {
         val refreshCookie = ResponseCookie.from("refresh_token", refreshToken)
             .httpOnly(true)
-            .secure(true)
+            .secure(false)
             .path("/")
             .maxAge(Duration.ofDays(7))
             .sameSite("Lax")
