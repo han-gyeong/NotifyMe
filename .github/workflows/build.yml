@@ -43,23 +43,32 @@ jobs:
     if: needs.detect-changes.outputs.api == 'true' || needs.detect-changes.outputs.core == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'gradle'
-          
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Gradle Test and Build
+        working-directory: notification-api
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Build & Push
+      - name: Push to Docker Hub
         run: |
-          ./gradlew :notification-api:bootJar
           docker build -t imoniz/notifyme:api-latest ./notification-api
           docker push imoniz/notifyme:api-latest
 
@@ -68,13 +77,23 @@ jobs:
     if: needs.detect-changes.outputs.auth == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Gradle Test and Build
+        working-directory: notification-auth
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -82,9 +101,8 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Build & Push
+      - name: Push to Docker Hub
         run: |
-          ./gradlew :notification-auth:bootJar
           docker build -t imoniz/notifyme:auth-latest ./notification-auth
           docker push imoniz/notifyme:auth-latest
 
@@ -93,13 +111,23 @@ jobs:
     if: needs.detect-changes.outputs.eureka == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Gradle Test and Build
+        working-directory: notification-eureka
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -107,9 +135,8 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Build & Push
+      - name: Push to Docker Hub
         run: |
-          ./gradlew :notification-eureka:bootJar
           docker build -t imoniz/notifyme:eureka-latest ./notification-eureka
           docker push imoniz/notifyme:eureka-latest
 
@@ -118,13 +145,23 @@ jobs:
     if: needs.detect-changes.outputs.gateway == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Gradle Test and Build
+        working-directory: notification-gateway
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -132,9 +169,8 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Build & Push
+      - name: Push to Docker Hub
         run: |
-          ./gradlew :notification-gateway:bootJar
           docker build -t imoniz/notifyme:gateway-latest ./notification-gateway
           docker push imoniz/notifyme:gateway-latest
 
@@ -143,13 +179,23 @@ jobs:
     if: needs.detect-changes.outputs.scheduler == 'true' || needs.detect-changes.outputs.core == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Gradle Test and Build
+        working-directory: notification-scheduler
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -157,9 +203,8 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Build & Push
+      - name: Push to Docker Hub
         run: |
-          ./gradlew :notification-scheduler:bootJar
           docker build -t imoniz/notifyme:scheduler-latest ./notification-scheduler
           docker push imoniz/notifyme:scheduler-latest
 
@@ -168,13 +213,23 @@ jobs:
     if: needs.detect-changes.outputs.sender == 'true' || needs.detect-changes.outputs.core == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Gradle Test and Build
+        working-directory: notification-sender
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -182,8 +237,7 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Build & Push
+      - name: Push to Docker Hub
         run: |
-          ./gradlew :notification-sender:bootJar
           docker build -t imoniz/notifyme:sender-latest ./notification-sender
           docker push imoniz/notifyme:sender-latest
