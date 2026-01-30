@@ -2,7 +2,7 @@ name: build.yml
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'notification-api/**'
       - 'notification-auth/**'
