@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
 import org.springframework.transaction.event.TransactionPhase
 import org.springframework.transaction.event.TransactionalEventListener
-import java.util.concurrent.TimeUnit
 
 @Component
 class NotificationOutboxListener(
@@ -44,18 +43,16 @@ class NotificationOutboxListener(
         val foundEvent = notificationOutboxService.findByEventId(event.eventId)
             ?: throw IllegalArgumentException("No notification outbox found with id ${event.eventId}")
 
-        try {
-            kafkaTemplate.send("notification-topic", foundEvent.notificationId.toString(), event)
-                .get(3, TimeUnit.SECONDS)
-
-            log.info("Published notification outbox with id ${foundEvent.notificationId}, payload: $event")
-
-            notificationOutboxService.markSent(foundEvent.outboxId)
-        } catch (e: Exception) {
-            log.error("Failed to publish notification", e)
-
-            notificationOutboxService.markFailed(foundEvent.outboxId)
-        }
+        kafkaTemplate.send("notification-topic", foundEvent.notificationId.toString(), event)
+            .whenComplete { _, ex ->
+                if (ex == null) {
+                    log.info("Published notification outbox with id ${foundEvent.notificationId}")
+                    notificationOutboxService.markSent(foundEvent.outboxId)
+                } else {
+                    log.error("Failed to publish notification", ex)
+                    notificationOutboxService.markFailed(foundEvent.outboxId)
+                }
+            }
     }
 
     private fun convertToJson(message: Any): String = objectMapper.writeValueAsString(message)
