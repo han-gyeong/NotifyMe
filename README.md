@@ -1,43 +1,78 @@
 # 🚀 NotifyMe
-NotifyMe는 사용자가 예약한 알림을 **정해진 시각에 자동 발송**하는 Notification 플랫폼입니다.  
-MSA 구조를 기반으로 하며, **Kafka 기반 비동기 처리** 를 기반으로 하고 있습니다.
+NotifyMe는 사용자가 예약한 알림을 정해진 시각에 자동 발송하는 Notification 플랫폼입니다.  
+MSA 구조를 기반으로 하며, Kafka 기반 비동기 처리를 기반으로 하고 있습니다.
 
----
+#### 시스템 아키텍처
+```
+              ┌───────────────────────────┐
+              │          Client           │
+              └─────────────┬─────────────┘
+                            │
+                            ▼
+              ┌───────────────────────────┐
+              │   Notification Gateway    │
+              │   - JWT Auth / Routing    │
+              └─────────────┬─────────────┘
+                            │
+            ┌───────────────┴───────────────┐
+            │                               │
+            ▼                               ▼
+  ┌──────────────────┐            ┌─────────────────────┐
+  │Notification Auth │            │ Notification API    │
+  │                  │            │                     │
+  │ - Sign up/In     │  	      │ - Notification CRUD │
+  │ - Manage Token   │  	      │ - Outbox Pattern    │
+  └──────────────────┘            └─────────┬───────────┘
+                                            │
+                                            │ Kafka (notification-topic)
+                                            ▼
+                                  ┌──────────────────┐
+                                  │   Notification   │
+                                  │    Scheduler     │
+                                  │                  │
+                                  │ - Event Consumer │
+                                  │ - DB Polling     │
+                                  └─────────┬────────┘
+                                            │
+                                            │ Kafka (request-topic)
+                                            ▼
+                                  ┌──────────────────┐
+                                  │   Notification   │
+                                  │      Sender      │
+                                  │                  │
+                                  │ - Email / Slack  │
+                                  │                  │
+                                  └─────────┬────────┘
+                                            │
+                                            │ Kafka (result-topic)
+                                            ▼
+                                  ┌──────────────────┐
+                                  │ Notification API │
+                                  │ (Result Handler) │
+                                  └──────────────────┘
+```
+#### 모듈 구성
 
-## ✨ Features
+| 모듈                         | 역할            | 주요 역할                                                        |
+|----------------------------|---------------|--------------------------------------------------------------|
+| **notification-api**       | 알림 관리 API     | 알림 생성/수정/조회/취소, Outbox 패턴을 통한 이벤트 발행, 발송 결과 수신                                            |
+| **notification-auth**      | 인증 서비스        | 회원가입/로그인, JWT 토큰 발급/갱신, 로그아웃 (토큰 블랙리스트)                      |
+| **notification-core**      | 공통 모듈         | 공통 도메인 모델 및 이벤트 정의                                    |
+| **notification-eureka**    | Eureka Server | MSA 방식에서 모듈 관리를 위한 Eureka 서버                                 |
+| **notification-gateway**   | API Gateway   | 요청 게이트웨이, JWT 토큰 검증 및 헤더를 통한 유저 정보 전달                        |
+| **notification-scheduler** | 스케줄러          | Kafka 이벤트 수신 및 스케줄 저장, Polling으로 발송 시간 확인, Kafka로 발송 요청 |
+| **notification-sender**    | 발송 서비스        | Email 발송 (SMTP), Slack 발송 (Webhook), 발송 결과를 Kafka로 전송                                                        |
 
-### 🔐 Authentication
-- 회원가입/로그인 (JWT 기반)
-- Access Token + Refresh Token
-- API Gateway 수준에서 토큰 검증
 
-### 📝 Notification Reservation
-- Email / Slack 알림 예약
-- 예약 데이터 대기중(WAITING) 상태 저장
-- 알림 취소(CANCEL)
-- 사전에 예약된 방식으로만 알림 가능
+## 데이터 흐름
+1. **알림 생성**: API → Outbox 저장 → Kafka 이벤트 발행
+2. **스케줄링**: Scheduler가 Kafka 이벤트 수신 → DB 저장 → Polling으로 발송 시간 확인
+3. **발송**: 발송 시간 도래 시 Kafka로 요청 → Sender가 실제 발송 → 결과를 Kafka로 전송
+4. **결과 처리**: API가 결과 수신 → Notification 상태 업데이트
 
-### 📝 User Notification Preferences
-- 사용자별 알림 수신 채널 등록/조회 (Email / Slack)
-- 기본 채널 설정 및 활성/비활성 토글
-- 수신 채널 등록 시 본인 소유 확인
-
-### ⏰ Scheduled Dispatching
-- Scheduler가 예약 시간이 된 알림을 Kafka로 enqueue
-
-### 📩 Multi-Channel Sending
-- Email Service (SMTP)
-- Slack Service (Webhook)
-- 채널 확장 구조
-
-### 📊 Delivery History
-- 발송 성공/실패 내역 기록
-- 사용자 단위 조회 API
-
-# Modules
-- notifyme-auth-api
-- notifyme-notification-api
-- notifyme-scheduler
-- notifyme-dispatcher
-- notifyme-email-sender
-- notifyme-slack-sender
+## 기술 스택
+- **Backend**: Kotlin, Coroutines, Spring Boot, Spring Cloud Gateway
+- **Messaging**: Kafka, Zookeeper
+- **Database**: MySQL, Redis
+- **Monitoring**: Prometheus, Grafana
+- **Infrastructure**: Docker, Docker Compose
