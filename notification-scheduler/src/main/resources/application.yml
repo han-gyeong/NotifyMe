@@ -26,6 +26,7 @@ spring:
     open-in-view: false
 
 notification:
+  event: notification.event
   channels:
     EMAIL:
       topic-request: notification.email.send-request

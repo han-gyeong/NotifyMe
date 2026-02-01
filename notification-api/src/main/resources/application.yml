@@ -20,6 +20,7 @@ spring:
 
 notification:
   topics:
+    event: notification.event
     result: notification.common.send-result
   consumer:
     group-id: result-group

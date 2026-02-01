@@ -6,6 +6,7 @@ import kr.notifyme.notification.entity.OutboxStatus
 import kr.notifyme.notification.event.NotificationEvent
 import kr.notifyme.notification.service.NotificationOutboxService
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
@@ -16,7 +17,8 @@ import org.springframework.transaction.event.TransactionalEventListener
 class NotificationOutboxListener(
     private val notificationOutboxService: NotificationOutboxService,
     private val kafkaTemplate: KafkaTemplate<String, NotificationEvent>,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    @Value("\${notification.topics.event}") private val eventTopic: String
 ) {
 
     companion object {
@@ -43,7 +45,7 @@ class NotificationOutboxListener(
         val foundEvent = notificationOutboxService.findByEventId(event.eventId)
             ?: throw IllegalArgumentException("No notification outbox found with id ${event.eventId}")
 
-        kafkaTemplate.send("notification-topic", foundEvent.notificationId.toString(), event)
+        kafkaTemplate.send(eventTopic, foundEvent.notificationId.toString(), event)
             .whenComplete { _, ex ->
                 if (ex == null) {
                     log.info("Published notification outbox with id ${foundEvent.notificationId}")

@@ -12,7 +12,7 @@ class NotificationMessageListener(
 ) {
 
     @KafkaListener(
-        topics = ["notification-topic"],
+        topics = ["\${notification.event}"],
         groupId = "notification-scheduler",
         concurrency = "5"
     )
