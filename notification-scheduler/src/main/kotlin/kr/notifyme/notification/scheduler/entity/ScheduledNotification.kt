@@ -6,6 +6,11 @@ import kr.notifyme.notification.domain.NotificationStatus
 import java.time.LocalDateTime
 
 @Entity
+@Table(
+    indexes = [
+        Index(name = "idx_notification_status_idx", columnList = "status, notify_at")
+    ]
+)
 class ScheduledNotification(
 
     @Id
