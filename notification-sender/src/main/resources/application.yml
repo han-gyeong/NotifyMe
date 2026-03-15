@@ -22,11 +22,11 @@ slack:
   webhook-url: ${SLACK_WEBHOOK_URL}
 
 mail:
-  from: webmaster@notifyme.kr
-  host: ${SMTP_SERVER}
-  port: 587
-  username: ${SMTP_USERNAME}
-  password: ${SMTP_PASSWORD}
+  port: 25
+  helo-host: mail.notifyme.kr
+  mail-from: alert@notifyme.kr
+  connect-timeout: 5
+  read-timeout: 5
 
 sender:
   type: ${TYPE}
