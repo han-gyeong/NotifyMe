@@ -13,10 +13,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Component
 import java.io.BufferedReader
+import java.io.IOException
 import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.net.SocketTimeoutException
 import java.util.*
 
 @Component
@@ -29,8 +31,8 @@ class EmailChannelSender(
 
     companion object {
         private const val SMTP_PORT = 25
-        private const val CONNECT_TIMEOUT_MS = 5_000
-        private const val READ_TIMEOUT_MS = 5_000
+        private const val CONNECT_TIMEOUT_MS = 10_000
+        private const val READ_TIMEOUT_MS = 10_000
     }
 
     override fun canHandle(request: SendRequest): Boolean = request.channelType == ChannelType.EMAIL
@@ -61,6 +63,15 @@ class EmailChannelSender(
             } catch (permanent: SmtpPermanentException) {
                 errorMsg = permanent.message ?: "permanent error occurred in sending email"
                 break
+            } catch (socket: SocketTimeoutException) {
+                errorMsg = socket.message ?: "socket timeout"
+                continue
+            } catch (ioe: IOException) {
+                errorMsg = ioe.message ?: "error occurred in sending email"
+                continue
+            } catch (e: Exception) {
+                errorMsg = e.message ?: "unexpected error occurred in sending email"
+                break
             }
         }
 
@@ -83,9 +94,19 @@ class EmailChannelSender(
             val writer = PrintWriter(socket.getOutputStream(), true)
 
             fun readAndCheck(): String {
-                val line = reader.readLine()
-                println("S: $line")
+                val lines = StringBuilder()
+                while (true) {
+                    val line = reader.readLine() ?: throw SmtpTemporaryException("Got unexpected response")
+                    lines.append(line)
+                        .append(System.lineSeparator())
 
+                    if (line.length < 4 || line[3] == ' ') {
+                        break
+                    }
+                }
+
+                val line = lines.toString()
+                println("S: $line")
                 return when {
                     line.startsWith("2") -> line
                     line.startsWith("3") -> line
