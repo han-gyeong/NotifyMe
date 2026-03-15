@@ -10,5 +10,7 @@ data class MailProperties(
     var host: String = "localhost",
     var port: Int = 25,
     var username: String = "user",
-    var password: String = "password"
+    var password: String = "password",
+    var heloHost: String = "mail.notifyme.kr",
+    val mailFrom: String = "alert@notifyme.kr",
 )

@@ -28,6 +28,7 @@ dependencies {
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	implementation("org.springframework.kafka:spring-kafka")
 	implementation("org.springframework.boot:spring-boot-starter-mail")
+	implementation("dnsjava:dnsjava:3.6.4")
 	implementation(project(":notification-core"))
 	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
