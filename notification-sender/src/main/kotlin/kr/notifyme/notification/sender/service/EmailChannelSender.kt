@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
+import java.net.InetSocketAddress
 import java.net.Socket
 import java.util.*
 
@@ -26,16 +27,32 @@ class EmailChannelSender(
     private val dnsResolver: DnsResolver
 ) : ChannelSender {
 
+    companion object {
+        private const val SMTP_PORT = 25
+        private const val CONNECT_TIMEOUT_MS = 5_000
+        private const val READ_TIMEOUT_MS = 5_000
+    }
+
     override fun canHandle(request: SendRequest): Boolean = request.channelType == ChannelType.EMAIL
 
     override suspend fun send(request: SendRequest): SendResult = withContext(Dispatchers.IO) {
-        val mxRecords = dnsResolver.resolveMx(extractDomain(request.destination))
+        val domain = extractDomain(request.destination)
+        val mxRecords = dnsResolver.resolveMx(domain)
+        if (mxRecords.isEmpty()) {
+            return@withContext SendResult(
+                request.notificationId,
+                ChannelType.EMAIL,
+                false,
+                "",
+                "No MX records were found"
+            )
+        }
 
         var isSuccess = false
         var errorMsg = ""
         for (mxRecord in mxRecords) {
             try {
-                request(mxRecord, 25, request.destination, "NotifyMe 에서 알람을 보내드립니다!", request.message)
+                request(mxRecord, SMTP_PORT, request.destination, "NotifyMe 에서 알람을 보내드립니다!", request.message)
                 isSuccess = true
                 break
             } catch (temporary: SmtpTemporaryException) {
@@ -57,7 +74,11 @@ class EmailChannelSender(
     }
 
     private fun request(host: String, port: Int, destination: String, subject: String, message: String) {
-        Socket(host, port).use { socket ->
+        val socket = Socket()
+        socket.connect(InetSocketAddress(host, port), CONNECT_TIMEOUT_MS)
+        socket.soTimeout = READ_TIMEOUT_MS
+
+        socket.use { socket ->
             val reader = BufferedReader(InputStreamReader(socket.getInputStream()))
             val writer = PrintWriter(socket.getOutputStream(), true)
 
