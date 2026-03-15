@@ -6,11 +6,11 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 mail:
-  from: webmaster@notifyme.kr
-  host: localhost
   port: 3025
-  username: notifyme@test.com
-  password: test1234
+  helo-host: mail.notifyme.kr
+  mail-from: alert@notifyme.kr
+  connect-timeout: 5
+  read-timeout: 5
 
 sender:
   type: ${TYPE}

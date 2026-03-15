@@ -27,7 +27,6 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 	implementation("org.springframework.kafka:spring-kafka")
-	implementation("org.springframework.boot:spring-boot-starter-mail")
 	implementation("dnsjava:dnsjava:3.6.4")
 	implementation(project(":notification-core"))
 	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
@@ -41,6 +40,8 @@ dependencies {
 	testImplementation("org.springframework.kafka:spring-kafka-test")
 	testImplementation("com.icegreen:greenmail-junit5:2.0.1")
 	testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
+	testImplementation("io.mockk:mockk:1.13.9")
+	testImplementation("com.ninja-squad:springmockk:4.0.2")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

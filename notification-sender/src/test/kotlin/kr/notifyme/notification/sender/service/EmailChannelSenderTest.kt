@@ -1,14 +1,15 @@
 package kr.notifyme.notification.sender.service
 
-import com.icegreen.greenmail.configuration.GreenMailConfiguration
 import com.icegreen.greenmail.junit5.GreenMailExtension
 import com.icegreen.greenmail.util.GreenMailUtil
 import com.icegreen.greenmail.util.ServerSetup
+import com.ninjasquad.springmockk.MockkBean
+import io.mockk.every
 import kotlinx.coroutines.test.runTest
 import kr.notifyme.notification.domain.ChannelType
-import kr.notifyme.notification.sender.config.MailConfig
 import kr.notifyme.notification.sender.config.MailProperties
 import kr.notifyme.notification.sender.dto.SendRequest
+import kr.notifyme.notification.sender.service.util.DnsResolver
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -17,27 +18,29 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
 
-@SpringBootTest(classes = [EmailChannelSender::class, MailProperties::class, MailConfig::class])
+@SpringBootTest(classes = [EmailChannelSender::class, MailProperties::class, DnsResolver::class])
 @EnableConfigurationProperties(MailProperties::class)
 @TestPropertySource(properties = ["sender.type=email"])
 class EmailChannelSenderTest(
     @Autowired val emailChannelSender: EmailChannelSender
 ) {
 
+    @MockkBean
+    private lateinit var dnsResolver: DnsResolver
+
     companion object {
         @JvmField
         @RegisterExtension
         val greenMail = GreenMailExtension(
             ServerSetup(3025, "localhost", ServerSetup.PROTOCOL_SMTP)
-        ).withConfiguration(
-            GreenMailConfiguration.aConfig()
-                .withUser("notifyme@test.com", "test1234")
         )
     }
 
     @Test
     fun `정상적으로 발송이 수행된다`() = runTest {
         // given
+        every { dnsResolver.resolveMx(any()) } returns listOf("localhost")
+
         val request = SendRequest(
             1L,
             ChannelType.EMAIL,
