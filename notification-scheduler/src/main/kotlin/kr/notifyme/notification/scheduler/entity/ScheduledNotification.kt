@@ -17,6 +17,7 @@ class ScheduledNotification(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
 
+    @Column(unique = true, nullable = false)
     val notificationId: Long,
 
     @Enumerated(EnumType.STRING)

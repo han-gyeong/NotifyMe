@@ -24,18 +24,10 @@ class NotificationOutboxService(
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun markSent(id: Long) {
-        val foundOutbox = notificationOutboxRepository.findById(id)
-            .orElseThrow { IllegalArgumentException("No notification outbox found with id $id") }
+    fun markSent(eventId: String) {
+        val foundOutbox = notificationOutboxRepository.findByEventId(eventId)
+            ?: throw IllegalArgumentException("No notification outbox found with id $eventId")
 
         foundOutbox.status = OutboxStatus.SENT
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    fun markFailed(id: Long) {
-        val foundOutbox = notificationOutboxRepository.findById(id)
-            .orElseThrow { IllegalArgumentException("No notification outbox found with id $id") }
-
-        foundOutbox.status = OutboxStatus.FAILED
     }
 }

@@ -25,6 +25,9 @@ class NotificationOutbox(
     @Enumerated(EnumType.STRING)
     var status: OutboxStatus,
 
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime,
 
+    var retryCount: Int = 0,
+
+    var nextRetryAt: LocalDateTime? = null,
     )
