@@ -36,6 +36,7 @@ class NotificationOutboxListener(
                 payload = convertToJson(event),
                 status = OutboxStatus.WAITING,
                 createdAt = event.createdAt,
+                nextRetryAt = event.createdAt.plusSeconds(5) // 실시간 - 배치 재발행 간 여유 시간
             )
         )
     }

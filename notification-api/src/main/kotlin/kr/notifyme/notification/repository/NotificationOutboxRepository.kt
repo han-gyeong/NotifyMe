@@ -16,7 +16,7 @@ interface NotificationOutboxRepository: JpaRepository<NotificationOutbox, Long> 
     @QueryHints(QueryHint(name = "jakarta.persistence.lock.timeout", value = "-2")) // SKIP LOCK
     @Query("select m from NotificationOutbox m " +
             "where m.status = :status " +
-            "and (m.nextRetryAt IS NULL or m.nextRetryAt <= :now) " +
+            "and m.nextRetryAt <= :now " +
             "and m.retryCount < :maxRetryCount " +
             "order by m.nextRetryAt "
     )
