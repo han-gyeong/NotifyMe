@@ -5,6 +5,11 @@ import kr.notifyme.notification.event.EventType
 import java.time.LocalDateTime
 
 @Entity
+@Table(
+    indexes = [
+        Index(name = "idx_notification_outbox_01", columnList = "status, next_retry_at")
+    ]
+)
 class NotificationOutbox(
 
     @Id
