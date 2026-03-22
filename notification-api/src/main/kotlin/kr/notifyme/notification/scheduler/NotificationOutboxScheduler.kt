@@ -50,6 +50,11 @@ class NotificationOutboxScheduler(
                     is JsonProcessingException -> updateToFail(event.eventId)
                     else -> {
                         val retryCount = event.retryCount + 1
+                        if (retryCount >= MAX_RETRY_COUNT) {
+                            updateToFail(event.eventId)
+                            continue
+                        }
+
                         updateNextRetry(event.eventId, retryCount, calculateNextRetryAt(retryCount))
                     }
                 }
