@@ -378,7 +378,7 @@ jobs:
           ecr_repository: notifyme/scheduler
           cluster_name: notifyme-applications
 
-  deploy-sender:
+  deploy-sender-email:
     needs: build-sender
     if: needs.build-sender.result == 'success'
     runs-on: ubuntu-latest
@@ -396,8 +396,32 @@ jobs:
       - name: Deploy to ECS
         uses: ./.github/actions/ecs-deploy
         with:
-          service_name: notifyme-sender
-          task_definition_file: .github/task-definitions/sender.json
-          container_name: notifyme-sender
+          service_name: notifyme-sender-email
+          task_definition_file: .github/task-definitions/sender-email.json
+          container_name: notifyme-sender-email
+          ecr_repository: notifyme/sender
+          cluster_name: notifyme-applications
+
+  deploy-sender-slack:
+    needs: build-sender
+    if: needs.build-sender.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: AWS Authentication
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to ECS
+        uses: ./.github/actions/ecs-deploy
+        with:
+          service_name: notifyme-sender-slack
+          task_definition_file: .github/task-definitions/sender-slack.json
+          container_name: notifyme-sender-slack
           ecr_repository: notifyme/sender
           cluster_name: notifyme-applications

@@ -1,12 +1,12 @@
 {
-  "family": "notifyme-sender",
+  "family": "notifyme-sender-slack",
   "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskRole",
   "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
   "networkMode": "bridge",
   "requiresCompatibilities": ["EC2"],
   "containerDefinitions": [
     {
-      "name": "notifyme-sender",
+      "name": "notifyme-sender-slack",
       "image": "PLACEHOLDER_IMAGE_URI",
       "portMappings": [
         {
@@ -20,12 +20,16 @@
         {
           "name": "SPRING_PROFILES_ACTIVE",
           "value": "dev"
+        },
+        {
+          "name": "SENDER_TYPE",
+          "value": "SLACK"
         }
       ],
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/notifyme-sender",
+          "awslogs-group": "/ecs/notifyme-sender-slack",
           "awslogs-region": "ap-northeast-2",
           "awslogs-stream-prefix": "ecs"
         }
