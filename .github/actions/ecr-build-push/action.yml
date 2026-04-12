@@ -20,6 +20,7 @@ runs:
       shell: bash
       run: |
         docker build \
+          --platform linux/arm64 \
           -t ${{ inputs.ecr_repository }}:${{ github.sha }} \
           ./${{ inputs.service_path }}
 

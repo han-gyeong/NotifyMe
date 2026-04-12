@@ -1,6 +1,6 @@
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.0.1
+    image: confluentinc/cp-zookeeper:7.0.16.arm64
     container_name: dev-zookeeper
     restart: unless-stopped
     environment:
@@ -12,7 +12,7 @@ services:
       - dev-net
 
   kafka:
-    image: confluentinc/cp-kafka:7.0.1
+    image: confluentinc/cp-kafka:7.0.16.arm64
     container_name: dev-kafka
     restart: unless-stopped
     depends_on:
@@ -24,7 +24,7 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: "dev-zookeeper:2181"
 
       # 호스트(로컬) 접속
-      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://dev-kafka:9092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://172.31.52.129:9092"
       KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092"
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT"
 
@@ -33,22 +33,6 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-    networks:
-      - dev-net
-
-  mysql:
-    image: mysql:8.0
-    container_name: dev-mysql
-    restart: unless-stopped
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: "gksrud12" # root 비밀번호
-      MYSQL_DATABASE: "notifyme"     # 초기 생성 데이터베이스 이름
-      MYSQL_USER: "notifyme"         # 일반 유저명
-      MYSQL_PASSWORD: "gksrud12"  # 일반 유저 비밀번호
-    volumes:
-      - mysql-data:/var/lib/mysql
     networks:
       - dev-net
 
@@ -103,6 +87,5 @@ networks:
 
 volumes:
   redis-data:
-  mysql-data:
   prometheus-data:
   grafana-data:

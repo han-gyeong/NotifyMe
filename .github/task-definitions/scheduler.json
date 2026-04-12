@@ -1,0 +1,45 @@
+{
+  "family": "notifyme-scheduler",
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskRole",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "networkMode": "host",
+  "requiresCompatibilities": ["EC2"],
+  "containerDefinitions": [
+    {
+      "name": "notifyme-scheduler",
+      "image": "PLACEHOLDER_IMAGE_URI",
+      "portMappings": [
+        {
+          "containerPort": 0,
+          "hostPort": 0,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "dev"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "SPRING_DATASOURCE_USERNAME",
+          "valueFrom": "${{ secrets.DB_USERNAME }}"
+        },
+        {
+          "name": "SPRING_DATASOURCE_PASSWORD",
+          "valueFrom": "${{ secrets.DB_PASSWORD }}"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/notifyme-scheduler",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+name: Deploy to ECS
+description: Update ECS service with latest ECR image and deploy
+
+inputs:
+  service_name:
+    description: ECS service name (e.g., notifyme-api)
+    required: true
+  task_definition_file:
+    description: Task definition JSON file path (e.g., .github/task-definitions/api.json)
+    required: true
+  container_name:
+    description: Container name (e.g., notifyme-api)
+    required: true
+  ecr_repository:
+    description: ECR repository name (e.g., notifyme/api)
+    required: true
+  cluster_name:
+    description: ECS cluster name
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: ECR Login
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build full ECR image URI
+      id: ecr-uri
+      shell: bash
+      run: |
+        ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+        IMAGE_URI="${ECR_REGISTRY}/${{ inputs.ecr_repository }}:${{ github.sha }}"
+        echo "image-uri=${IMAGE_URI}" >> $GITHUB_OUTPUT
+
+    - name: Render ECS Task Definition
+      id: task-def
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ${{ inputs.task_definition_file }}
+        container-name: ${{ inputs.container_name }}
+        image: ${{ steps.ecr-uri.outputs.image-uri }}
+        environment-variables: ${{ inputs.env_vars }}
+
+    - name: Deploy to ECS Service
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      with:
+        task-definition: ${{ steps.task-def.outputs.task-definition }}
+        service: ${{ inputs.service_name }}
+        cluster: ${{ inputs.cluster_name }}
+        wait-for-service-stability: false

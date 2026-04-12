@@ -3,7 +3,7 @@ server:
 
 eureka:
   instance:
-    hostname: notification-eureka
+    hostname: eureka.internal
   client:
     register-with-eureka: true
     fetch-registry: false

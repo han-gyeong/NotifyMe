@@ -257,3 +257,147 @@ jobs:
         with:
           service_path: notification-sender
           ecr_repository: notifyme/sender
+
+  deploy-api:
+    needs: build-api
+    if: needs.build-api.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: AWS Authentication
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to ECS
+        uses: ./.github/actions/ecs-deploy
+        with:
+          service_name: notifyme-api
+          task_definition_file: .github/task-definitions/api.json
+          container_name: notifyme-api
+          ecr_repository: notifyme/api
+          cluster_name: notifyme-applications
+
+  deploy-auth:
+    needs: build-auth
+    if: needs.build-auth.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: AWS Authentication
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to ECS
+        uses: ./.github/actions/ecs-deploy
+        with:
+          service_name: notifyme-auth
+          task_definition_file: .github/task-definitions/auth.json
+          container_name: notifyme-auth
+          ecr_repository: notifyme/auth
+          cluster_name: notifyme-applications
+
+  deploy-eureka:
+    needs: build-eureka
+    if: needs.build-eureka.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: AWS Authentication
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to ECS
+        uses: ./.github/actions/ecs-deploy
+        with:
+          service_name: notifyme-eureka
+          task_definition_file: .github/task-definitions/eureka.json
+          container_name: notifyme-eureka
+          ecr_repository: notifyme/eureka
+          cluster_name: notifyme-applications
+
+  deploy-gateway:
+    needs: build-gateway
+    if: needs.build-gateway.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: AWS Authentication
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to ECS
+        uses: ./.github/actions/ecs-deploy
+        with:
+          service_name: notifyme-gateway
+          task_definition_file: .github/task-definitions/gateway.json
+          container_name: notifyme-gateway
+          ecr_repository: notifyme/gateway
+          cluster_name: notifyme-applications
+
+  deploy-scheduler:
+    needs: build-scheduler
+    if: needs.build-scheduler.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: AWS Authentication
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to ECS
+        uses: ./.github/actions/ecs-deploy
+        with:
+          service_name: notifyme-scheduler
+          task_definition_file: .github/task-definitions/scheduler.json
+          container_name: notifyme-scheduler
+          ecr_repository: notifyme/scheduler
+          cluster_name: notifyme-applications
+
+  deploy-sender:
+    needs: build-sender
+    if: needs.build-sender.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: AWS Authentication
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy to ECS
+        uses: ./.github/actions/ecs-deploy
+        with:
+          service_name: notifyme-sender
+          task_definition_file: .github/task-definitions/sender.json
+          container_name: notifyme-sender
+          ecr_repository: notifyme/sender
+          cluster_name: notifyme-applications

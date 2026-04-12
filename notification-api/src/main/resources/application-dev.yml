@@ -3,13 +3,11 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://dev-mysql:3306/notifyme
-    username: notifyme
-    password: gksrud12
+    url: jdbc:mysql://rdb.internal:3306/notifyme
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   kafka:
-    bootstrap-servers: dev-kafka:9092
+    bootstrap-servers: infra.internal:9092
 
   jpa:
     hibernate:
@@ -19,10 +17,3 @@ spring:
         format_sql: true
         show_sql: false
     open-in-view: false
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://notification-eureka:8761/eureka/
-  instance:
-    prefer-ip-address: true
