@@ -1,7 +1,7 @@
 {
   "family": "notifyme-sender-email",
   "taskRoleArn": "",
-  "networkMode": "bridge",
+  "networkMode": "host",
   "requiresCompatibilities": ["EC2"],
   "containerDefinitions": [
     {
@@ -9,8 +9,7 @@
       "image": "PLACEHOLDER_IMAGE_URI",
       "portMappings": [
         {
-          "containerPort": 0,
-          "hostPort": 0,
+          "containerPort": 8084,
           "protocol": "tcp"
         }
       ],

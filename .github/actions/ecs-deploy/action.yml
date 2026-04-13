@@ -40,11 +40,13 @@ runs:
           --arg username_arn "$SPRING_DATASOURCE_USERNAME_ARN" \
           --arg password_arn "$SPRING_DATASOURCE_PASSWORD_ARN" \
           '.executionRoleArn = $ecs_role |
-           .containerDefinitions[0].secrets |= map(
-             if .name == "SPRING_DATASOURCE_USERNAME" then .valueFrom = $username_arn
-             elif .name == "SPRING_DATASOURCE_PASSWORD" then .valueFrom = $password_arn
-             else . end
-           ) // .' \
+           if .containerDefinitions[0].secrets then
+             .containerDefinitions[0].secrets |= map(
+               if .name == "SPRING_DATASOURCE_USERNAME" then .valueFrom = $username_arn
+               elif .name == "SPRING_DATASOURCE_PASSWORD" then .valueFrom = $password_arn
+               else . end
+             )
+           else . end' \
           ${{ inputs.task_definition_file }} > /tmp/task-def.json
         cp /tmp/task-def.json ${{ inputs.task_definition_file }}
 

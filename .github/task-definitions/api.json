@@ -9,8 +9,7 @@
       "image": "PLACEHOLDER_IMAGE_URI",
       "portMappings": [
         {
-          "containerPort": 0,
-          "hostPort": 0,
+          "containerPort": 8081,
           "protocol": "tcp"
         }
       ],
