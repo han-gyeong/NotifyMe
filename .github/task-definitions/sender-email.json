@@ -7,7 +7,7 @@
     {
       "name": "notifyme-sender-email",
       "image": "PLACEHOLDER_IMAGE_URI",
-      "memory": 256,
+      "memoryReservation": 384,
       "portMappings": [
         {
           "containerPort": 8084,
