@@ -4,6 +4,9 @@ server:
 spring:
   r2dbc:
     url: r2dbc:pool:mysql://rdb.internal:3306/notifyme
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
   data:
     redis:
       host: infra.internal
