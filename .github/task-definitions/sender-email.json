@@ -1,7 +1,6 @@
 {
   "family": "notifyme-sender-email",
-  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskRole",
-  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "",
   "networkMode": "bridge",
   "requiresCompatibilities": ["EC2"],
   "containerDefinitions": [
@@ -10,7 +9,7 @@
       "image": "PLACEHOLDER_IMAGE_URI",
       "portMappings": [
         {
-          "containerPort": 8080,
+          "containerPort": 0,
           "hostPort": 0,
           "protocol": "tcp"
         }

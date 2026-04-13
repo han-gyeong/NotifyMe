@@ -32,6 +32,22 @@ runs:
         IMAGE_URI="${ECR_REGISTRY}/${{ inputs.ecr_repository }}:${{ github.sha }}"
         echo "image-uri=${IMAGE_URI}" >> $GITHUB_OUTPUT
 
+    - name: Inject environment variables into task definition
+      shell: bash
+      run: |
+        jq \
+          --arg ecs_role "$ECS_EXECUTION_ROLE_ARN" \
+          --arg username_arn "$SPRING_DATASOURCE_USERNAME_ARN" \
+          --arg password_arn "$SPRING_DATASOURCE_PASSWORD_ARN" \
+          '.executionRoleArn = $ecs_role |
+           .containerDefinitions[0].secrets |= map(
+             if .name == "SPRING_DATASOURCE_USERNAME" then .valueFrom = $username_arn
+             elif .name == "SPRING_DATASOURCE_PASSWORD" then .valueFrom = $password_arn
+             else . end
+           ) // .' \
+          ${{ inputs.task_definition_file }} > /tmp/task-def.json
+        cp /tmp/task-def.json ${{ inputs.task_definition_file }}
+
     - name: Render ECS Task Definition
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1

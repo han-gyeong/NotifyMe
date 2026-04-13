@@ -1,7 +1,6 @@
 {
   "family": "notifyme-api",
-  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskRole",
-  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "",
   "networkMode": "host",
   "requiresCompatibilities": ["EC2"],
   "containerDefinitions": [
@@ -25,11 +24,11 @@
       "secrets": [
         {
           "name": "SPRING_DATASOURCE_USERNAME",
-          "valueFrom": "${{ secrets.DB_USERNAME }}"
+          "valueFrom": "${SPRING_DATASOURCE_USERNAME_ARN}"
         },
         {
           "name": "SPRING_DATASOURCE_PASSWORD",
-          "valueFrom": "${{ secrets.DB_PASSWORD }}"
+          "valueFrom": "${SPRING_DATASOURCE_PASSWORD_ARN}"
         }
       ],
       "logConfiguration": {

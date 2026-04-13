@@ -1,7 +1,6 @@
 {
   "family": "notifyme-eureka",
-  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskRole",
-  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "",
   "networkMode": "host",
   "requiresCompatibilities": ["EC2"],
   "containerDefinitions": [
