@@ -1,7 +1,7 @@
 {
   "family": "notifyme-scheduler",
   "taskRoleArn": "",
-  "networkMode": "host",
+  "networkMode": "bridge",
   "requiresCompatibilities": ["EC2"],
   "containerDefinitions": [
     {
@@ -11,6 +11,7 @@
       "portMappings": [
         {
           "containerPort": 8083,
+          "hostPort": 8083,
           "protocol": "tcp"
         }
       ],

@@ -1,7 +1,7 @@
 {
   "family": "notifyme-sender-slack",
   "taskRoleArn": "",
-  "networkMode": "host",
+  "networkMode": "bridge",
   "requiresCompatibilities": ["EC2"],
   "containerDefinitions": [
     {
@@ -11,6 +11,7 @@
       "portMappings": [
         {
           "containerPort": 8085,
+          "hostPort": 8085,
           "protocol": "tcp"
         }
       ],
