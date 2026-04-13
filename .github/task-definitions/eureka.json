@@ -7,10 +7,10 @@
     {
       "name": "notifyme-eureka",
       "image": "PLACEHOLDER_IMAGE_URI",
+      "memory": 256,
       "portMappings": [
         {
           "containerPort": 8761,
-          "hostPort": 8761,
           "protocol": "tcp"
         }
       ],

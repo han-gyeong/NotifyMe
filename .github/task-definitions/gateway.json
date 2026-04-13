@@ -7,10 +7,10 @@
     {
       "name": "notifyme-gateway",
       "image": "PLACEHOLDER_IMAGE_URI",
+      "memory": 256,
       "portMappings": [
         {
           "containerPort": 8080,
-          "hostPort": 8080,
           "protocol": "tcp"
         }
       ],
