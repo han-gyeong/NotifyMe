@@ -10,10 +10,3 @@ spring:
     redis:
       host: localhost
       port: 6379
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8761/eureka/ # Eureka 서버 주소
-  instance:
-    prefer-ip-address: true # 호스트 이름보다 IP 주소를 우선 사용 (권장)

@@ -10,11 +10,11 @@ spring:
         webflux:
           routes:
             - id: auth-api
-              uri: lb://notification-auth
+              uri: http://notifyme-auth:8082
               predicates:
                 - Path=/api/v1/auth/**
             - id: notification-api
-              uri: lb://notification-api
+              uri: http://notifyme-api:8081
               predicates:
                 - Path=/api/v1/notifications/**
 

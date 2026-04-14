@@ -24,7 +24,6 @@ extra["springCloudVersion"] = "2025.0.1"
 dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.springframework.cloud:spring-cloud-starter-gateway-server-webflux")
-	implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis-reactive")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
