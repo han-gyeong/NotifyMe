@@ -1,7 +1,7 @@
 {
   "family": "notifyme-gateway",
   "taskRoleArn": "",
-  "networkMode": "bridge",
+  "networkMode": "awsvpc",
   "requiresCompatibilities": ["EC2"],
   "containerDefinitions": [
     {
@@ -11,8 +11,7 @@
       "portMappings": [
         {
           "containerPort": 8080,
-          "hostPort": 8080,
-          "protocol": "tcp"
+          "name": "notifyme-gateway"
         }
       ],
       "essential": true,

@@ -1,7 +1,7 @@
 {
   "family": "notifyme-api",
   "taskRoleArn": "",
-  "networkMode": "bridge",
+  "networkMode": "awsvpc",
   "requiresCompatibilities": ["EC2"],
   "containerDefinitions": [
     {
@@ -11,8 +11,7 @@
       "portMappings": [
         {
           "containerPort": 8081,
-          "hostPort": 8081,
-          "protocol": "tcp"
+          "name": "notifyme-api"
         }
       ],
       "essential": true,
