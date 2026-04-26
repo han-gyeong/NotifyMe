@@ -1,8 +1,0 @@
-server:
-  port: 8761
-
-spring:
-  profiles:
-    active: local
-  application:
-    name: notification-eureka

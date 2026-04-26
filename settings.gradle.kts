@@ -6,6 +6,5 @@ include(
     "notification-auth",
     "notification-scheduler",
     "notification-sender",
-    "notification-gateway",
-    "notification-eureka",
+    "notification-gateway"
 )
