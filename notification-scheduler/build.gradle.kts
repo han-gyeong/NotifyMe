@@ -31,6 +31,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springframework.kafka:spring-kafka")
     implementation(project(":notification-core"))
+    implementation(project(":notification-domain"))
 
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     runtimeOnly("com.mysql:mysql-connector-j")

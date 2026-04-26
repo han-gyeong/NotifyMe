@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
 
+
 interface NotificationRepository : JpaRepository<Notification, Long> {
 
     fun findAllByCreatedBy(createdBy: String, pageable: Pageable) : Slice<Notification>
